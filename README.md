@@ -94,3 +94,27 @@ https://developer.hashicorp.com/vault/docs/concepts/integrated-storage#server-to
 https://github.com/btkrausen/hashicorp/tree/master/vault
 
 https://github.com/hashicorp/learn-vault-raft/tree/main/raft-storage
+
+
+### Load Balancers
+
+https://support.hashicorp.com/hc/en-us/articles/4413810165395-Best-Practices-AWS-NLB-configuration-for-Vault
+
+https://repost.aws/knowledge-center/public-load-balancer-private-ec2
+
+https://stackoverflow.com/a/78692375
+
+
+* The NETWORK load balancer needs to point to public subnets
+* A custom security group needs to be associated with the ELB:
+    - INGRESS all traffic ( need work )
+    - EGRESS
+        - Custom TCP, TCP, 8200, sg for instance
+        - Custom TCP, TCP, 8201, sg for instance
+* Security group for vault instance:
+    - Add a rule on the instance security group to allow traffic from the security group that's assigned to the load balancer.
+        - Custom TCP, TCP, 8200, sg for ELB
+
+
+
+=========================================================

@@ -8,9 +8,3 @@ variable "aws_region" {
   type    = string
   default = "eu-west-2"
 }
-
-variable "vault_nodes" {
-  description = "Number of vault nodes to create"
-  type        = number
-  default     = 1
-}

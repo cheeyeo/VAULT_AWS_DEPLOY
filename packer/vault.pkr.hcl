@@ -64,11 +64,6 @@ build {
   sources = ["source.amazon-ebs.amazon-ebs-amazonlinux-2"]
 
   provisioner "file" {
-    destination = "/tmp/vault.zip"
-    source      = var.vault_zip
-  }
-
-  provisioner "file" {
     destination = "/tmp/vault.service"
     source      = "files/vault.service"
   }

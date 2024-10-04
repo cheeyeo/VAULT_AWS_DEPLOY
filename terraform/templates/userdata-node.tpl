@@ -44,21 +44,24 @@ sudo chown -R vault:vault /etc/vault.d
 sudo systemctl enable vault
 sudo systemctl start vault
 
-sleep 30
+sleep 120
+
+# NOTE: The secrets engine is enabled on the master only?
+# sleep 30
 # Read root token temporarily from secretsmanager
-VAULT_TOKEN=$(aws --region ${tpl_aws_region} secretsmanager get-secret-value --secret-id ${tpl_secret_name} --query SecretString --output text | jq '.root_token')
+# VAULT_TOKEN=$(aws --region ${tpl_aws_region} secretsmanager get-secret-value --secret-id ${tpl_secret_name} --query SecretString --output text | jq '.root_token')
 
-# echo $VAULT_TOKEN > /home/ssm-user/root_token
-# sudo chown ssm-user:ssm-user /home/ssm-user/root_token
-# echo $VAULT_TOKEN > /home/ssm-user/.vault-token
-# sudo chown ssm-user:ssm-user /home/ssm-user/.vault-token
+# # echo $VAULT_TOKEN > /home/ssm-user/root_token
+# # sudo chown ssm-user:ssm-user /home/ssm-user/root_token
+# # echo $VAULT_TOKEN > /home/ssm-user/.vault-token
+# # sudo chown ssm-user:ssm-user /home/ssm-user/.vault-token
 
-export VAULT_ADDR=http://127.0.0.1:8200
-export VAULT_TOKEN=$VAULT_TOKEN
+# export VAULT_ADDR=http://127.0.0.1:8200
+# export VAULT_TOKEN=$VAULT_TOKEN
 
-sleep 10
+# sleep 10
 
-echo "Testing vault setup"
-vault secrets enable -path=kv kv-v2
-vault kv put kv/apikey foo=bar
-vault kv get kv/apikey
+# echo "Testing vault setup"
+# vault secrets enable -path=kv kv-v2
+# vault kv put kv/apikey foo=bar
+# vault kv get kv/apikey

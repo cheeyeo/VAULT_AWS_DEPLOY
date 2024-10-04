@@ -40,7 +40,7 @@ sudo chmod -R 0644 /etc/vault.d/*
 sudo systemctl enable vault
 sudo systemctl start vault
 
-sleep 30
+sleep 60
 export VAULT_ADDR=http://127.0.0.1:8200
 vault operator init -recovery-shares 1 -recovery-threshold 1 -format=json > /tmp/key.json
 
@@ -68,6 +68,11 @@ echo "Waiting for Vault to finish preparations (10s)"
 sleep 10
 
 echo "Enabling kv-v2 secrets engine and inserting secret"
-vault secrets enable -path=kv kv-v2
-vault kv put kv/apikey webapp=ABB39KKPTWOR832JGNLS02
-vault kv get kv/apikey
+vault secrets enable -path=secret kv-v2
+vault kv put secret/apikey webapp=ABB39KKPTWOR832JGNLS02
+vault kv get secret/apikey
+
+echo "Setting up user auth..."
+vault auth enable userpass
+vault write auth/userpass/users/chee password=vault policies=admin token_ttl=20m
+vault auth enable okta
