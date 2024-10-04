@@ -75,16 +75,18 @@ resource "aws_security_group" "vault_nodes" {
 
 # Define ingress rule to reference ELB sg
 resource "aws_security_group_rule" "ingress_vault_elb" {
+  count    = var.vault_nodes
   type                     = "ingress"
   from_port                = 8200
   to_port                  = 8200
   protocol                 = "tcp"
   security_group_id        = aws_security_group.vault_nodes.id
-  source_security_group_id = aws_security_group.vault_elb.id
+  source_security_group_id = aws_security_group.vault_elb[0].id
 }
 
 # Security group for Load Balancer
 resource "aws_security_group" "vault_elb" {
+  count    = var.vault_nodes
   name        = "vault_elb"
   description = "Vault ELB"
   vpc_id      = module.vpc.vpc_id
@@ -110,20 +112,22 @@ resource "aws_security_group" "vault_elb" {
 
 # Define the remaining two egress rules using 
 resource "aws_security_group_rule" "egress_vault_core" {
+  count    = var.vault_nodes
   type                     = "egress"
   from_port                = 8200
   to_port                  = 8200
   protocol                 = "tcp"
-  security_group_id        = aws_security_group.vault_elb.id
+  security_group_id        = aws_security_group.vault_elb[0].id
   source_security_group_id = aws_security_group.vault_nodes.id
 }
 
 resource "aws_security_group_rule" "egress_vault_core2" {
+  count    = var.vault_nodes
   type                     = "egress"
   from_port                = 8201
   to_port                  = 8201
   protocol                 = "tcp"
-  security_group_id        = aws_security_group.vault_elb.id
+  security_group_id        = aws_security_group.vault_elb[0].id
   source_security_group_id = aws_security_group.vault_nodes.id
 }
 
@@ -182,7 +186,7 @@ resource "aws_lb" "vault" {
   internal           = false
   load_balancer_type = "network"
   subnets            = [for subnet in module.vpc.public_subnets : subnet]
-  security_groups    = [aws_security_group.vault_elb.id]
+  security_groups    = [aws_security_group.vault_elb[0].id]
   tags = {
     Environment = "vault-dev"
   }
