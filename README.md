@@ -77,7 +77,7 @@ Trying to replace above with retry_join..
 
 retry_join should not be run on leader node as it causes a loop !! 
 its expecting vault to be initialized...
-run it only on worker nodes with its leader_api url set...
+run it only on leader node 
 
 
 ===========================================================================================
@@ -118,3 +118,21 @@ https://stackoverflow.com/a/78692375
 
 
 =========================================================
+
+### Issues
+
+* Redirect vault server logs to syslog for sending to cloudwatch; also need to setup cloudwatch agent
+
+ref: https://github.com/robertdebock/terraform-aws-vault/blob/master/scripts/cloudwatch.sh
+
+* Create launch template and autoscaling group...
+
+For ASG we need to turn on autocleanup of dead raft peers:
+```
+vault login ROOT_TOKEN
+
+vault operator raft autopilot set-config \
+  -min-quorum=3 \
+  -cleanup-dead-servers=true \
+  -dead-server-last-contact-threshold=120
+```

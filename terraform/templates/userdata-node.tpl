@@ -44,7 +44,12 @@ sudo chown -R vault:vault /etc/vault.d
 sudo systemctl enable vault
 sudo systemctl start vault
 
-sleep 120
+sleep 60
+
+echo "Enable Vault audit logs..."
+sudo touch /var/log/vault_audit.log
+sudo chown vault:vault /var/log/vault_audit.log
+vault audit enable file file_path=/var/log/vault_audit.log
 
 # NOTE: The secrets engine is enabled on the master only?
 # sleep 30

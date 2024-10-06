@@ -15,6 +15,11 @@ sudo tee /etc/vault.d/vault.hcl <<EOF
 storage "raft" {
   path    = "${tpl_vault_storage_path}"
   node_id = "${tpl_vault_node_name}"
+
+  retry_join {
+    auto_join_scheme = "http"
+    auto_join = "provider=aws region=${tpl_aws_region} tag_key=cluster_name tag_value=vault-dev"
+  }
 }
 
 listener "tcp" {
@@ -40,9 +45,15 @@ sudo chmod -R 0644 /etc/vault.d/*
 sudo systemctl enable vault
 sudo systemctl start vault
 
+%{ if vault_role == "leader" ~}
 sleep 60
-export VAULT_ADDR=http://127.0.0.1:8200
-vault operator init -recovery-shares 1 -recovery-threshold 1 -format=json > /tmp/key.json
+
+vault operator init -address="http://127.0.0.1:8200" -recovery-shares 1 -recovery-threshold 1 -format=json > /tmp/key.json
+
+echo "Enable Vault audit logs..."
+sudo touch /var/log/vault_audit.log
+sudo chown vault:vault /var/log/vault_audit.log
+vault audit enable file file_path=/var/log/vault_audit.log
 
 
 VAULT_TOKEN=$(cat /tmp/key.json | jq -r ".root_token")
@@ -74,5 +85,5 @@ vault kv get secret/apikey
 
 echo "Setting up user auth..."
 vault auth enable userpass
-vault write auth/userpass/users/chee password=vault policies=admin token_ttl=20m
 vault auth enable okta
+%{ endif ~}

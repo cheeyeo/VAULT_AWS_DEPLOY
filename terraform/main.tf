@@ -24,116 +24,9 @@ module "vpc" {
   enable_dns_hostnames = true
 }
 
-resource "aws_security_group" "vault_nodes" {
-  name        = "vault_nodes"
-  description = "Vault nodes traffic"
-  vpc_id      = module.vpc.vpc_id
-
-  tags = {
-    Name = "vault_nodes"
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [module.vpc.vpc_cidr_block]
-  }
-
-
-  # Vault API traffic
-  ingress {
-    from_port   = 8200
-    to_port     = 8200
-    protocol    = "tcp"
-    cidr_blocks = [module.vpc.vpc_cidr_block]
-  }
-
-  # Vault cluster traffic
-  ingress {
-    from_port   = 8201
-    to_port     = 8201
-    protocol    = "tcp"
-    cidr_blocks = [module.vpc.vpc_cidr_block]
-  }
-
-  # Internal Traffic
-  ingress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    self      = true
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# Define ingress rule to reference ELB sg
-resource "aws_security_group_rule" "ingress_vault_elb" {
-  count    = var.vault_nodes
-  type                     = "ingress"
-  from_port                = 8200
-  to_port                  = 8200
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.vault_nodes.id
-  source_security_group_id = aws_security_group.vault_elb[0].id
-}
-
-# Security group for Load Balancer
-resource "aws_security_group" "vault_elb" {
-  count    = var.vault_nodes
-  name        = "vault_elb"
-  description = "Vault ELB"
-  vpc_id      = module.vpc.vpc_id
-
-  tags = {
-    Name = "vault_elb"
-  }
-
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# Define the remaining two egress rules using 
-resource "aws_security_group_rule" "egress_vault_core" {
-  count    = var.vault_nodes
-  type                     = "egress"
-  from_port                = 8200
-  to_port                  = 8200
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.vault_elb[0].id
-  source_security_group_id = aws_security_group.vault_nodes.id
-}
-
-resource "aws_security_group_rule" "egress_vault_core2" {
-  count    = var.vault_nodes
-  type                     = "egress"
-  from_port                = 8201
-  to_port                  = 8201
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.vault_elb[0].id
-  source_security_group_id = aws_security_group.vault_nodes.id
-}
-
 # Create ELB target group
 resource "aws_lb_target_group" "tstvault" {
-  count    = var.vault_nodes
+  count    = var.vault_nodes > 0 ? 1 : 0
   name     = "tst-vault"
   port     = 8200
   protocol = "TCP"
@@ -154,21 +47,13 @@ resource "aws_lb_target_group" "tstvault" {
 resource "aws_lb_target_group_attachment" "tstvault" {
   count            = var.vault_nodes
   target_group_arn = aws_lb_target_group.tstvault[0].arn
-  target_id        = aws_instance.vault_root_server[0].id
-  port             = 8200
-}
-
-# Create target group attachment for vault worker nodes
-resource "aws_lb_target_group_attachment" "tstvault2" {
-  count            = var.vault_nodes
-  target_group_arn = aws_lb_target_group.tstvault[0].arn
-  target_id        = aws_instance.vault_node[0].id
+  target_id        = aws_instance.vault_root_server[count.index].id
   port             = 8200
 }
 
 # Create Listener
 resource "aws_lb_listener" "ui" {
-  count             = var.vault_nodes
+  count             = var.vault_nodes > 0 ? 1 : 0
   load_balancer_arn = aws_lb.vault[0].arn
   port              = "8200"
   protocol          = "TCP"
@@ -181,7 +66,7 @@ resource "aws_lb_listener" "ui" {
 
 # Create Load Balancer
 resource "aws_lb" "vault" {
-  count              = var.vault_nodes
+  count              = var.vault_nodes > 0 ? 1 : 0
   name               = "vault-elb"
   internal           = false
   load_balancer_type = "network"
