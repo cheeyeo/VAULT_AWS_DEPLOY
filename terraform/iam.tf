@@ -1,10 +1,3 @@
-variable "self_ec2_instance_role" {
-  description = "EC2 Instance role name"
-  type        = string
-  default     = "CustomEC2InstanceRole"
-}
-
-
 # Self-hosted runner EC2 Instance Role
 data "aws_iam_policy_document" "AWSEC2TrustPolicy" {
   statement {

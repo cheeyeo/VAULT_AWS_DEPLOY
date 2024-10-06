@@ -1,3 +1,9 @@
+variable "self_ec2_instance_role" {
+  description = "EC2 Instance role name"
+  type        = string
+  default     = "CustomEC2InstanceRole"
+}
+
 variable "vault_server_names" {
   description = "Names of the Vault nodes that will join the cluster"
   type        = list(string)

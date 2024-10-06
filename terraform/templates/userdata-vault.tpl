@@ -2,8 +2,98 @@
 
 set -x
 
+echo "Updating base system..."
+
+sudo yum-config-manager --enable rhui-REGION-rhel-server-releases-optional
+sudo yum-config-manager --enable rhui-REGION-rhel-server-supplementary
+sudo yum-config-manager --enable rhui-REGION-rhel-server-extras
+sudo yum -y check-update
+sudo yum install -q -y wget unzip bind-utils ntp jq curl
+sudo systemctl start ntpd.service
+sudo systemctl enable ntpd.service
+
+USER_NAME="vault"
+USER_COMMENT="HashiCorp Vault user"
+USER_GROUP="vault"
+USER_HOME="/srv/vault"
+
+echo "Setup vault user..."
+sudo /usr/sbin/groupadd --force --system $${USER_GROUP}
+
+sudo /usr/sbin/adduser \
+      --system \
+      --gid $${USER_GROUP} \
+      --home $${USER_HOME} \
+      --no-create-home \
+      --comment "$${USER_COMMENT}" \
+      --shell /bin/false \
+      $${USER_NAME}  >/dev/null
+
+echo "Downloading vault..."
+VAULT_VERSION=1.17.6
+curl -Lo /tmp/vault.zip https://releases.hashicorp.com/vault/$${VAULT_VERSION}/vault_$${VAULT_VERSION}_linux_amd64.zip
+
+echo "Installing vault..."
+
+cd /tmp
+sudo unzip -o /tmp/vault.zip -d /usr/local/bin/
+sudo chmod 0755 /usr/local/bin/vault
+sudo chown vault:vault /usr/local/bin/vault
+sudo mkdir -pm 0755 /etc/vault.d
+
+echo "Granting mlock syscall to vault binary"
+sudo setcap cap_ipc_lock=+ep /usr/local/bin/vault
+
+echo "Creating vault service file..."
+SYSTEMD_DIR="/etc/systemd/system"
+
+sudo tee $${SYSTEMD_DIR}/vault.service <<EOF
+[Unit]
+Description="HashiCorp Vault - A tool for managing secrets"
+Documentation=https://www.vaultproject.io/docs/
+Requires=network-online.target
+After=network-online.target
+ConditionFileNotEmpty=/etc/vault.d/vault.hcl
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+User=vault
+Group=vault
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=yes
+PrivateDevices=yes
+SecureBits=keep-caps
+AmbientCapabilities=CAP_IPC_LOCK
+Capabilities=CAP_IPC_LOCK+ep
+CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
+NoNewPrivileges=yes
+ExecStart=/usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
+ExecReload=/bin/kill --signal HUP $$MAINPID
+KillMode=process
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+StartLimitInterval=60
+StartLimitIntervalSec=60
+StartLimitBurst=3
+LimitNOFILE=65536
+LimitMEMLOCK=infinity
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo chmod 0664 $${SYSTEMD_DIR}/vault*
+
+sudo rm -rf /tmp/vault.zip
+
+
 # Get Private IP address
 PRIVATE_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
+INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
 
 echo "Configuring vault..."
 
@@ -14,7 +104,7 @@ sudo chmod -R a+rwx ${tpl_vault_storage_path}
 sudo tee /etc/vault.d/vault.hcl <<EOF
 storage "raft" {
   path    = "${tpl_vault_storage_path}"
-  node_id = "${tpl_vault_node_name}"
+  node_id = "$${INSTANCE_ID}"
 
   retry_join {
     auto_join_scheme = "http"
@@ -44,46 +134,3 @@ sudo chmod -R 0644 /etc/vault.d/*
 
 sudo systemctl enable vault
 sudo systemctl start vault
-
-%{ if vault_role == "leader" ~}
-sleep 60
-
-vault operator init -address="http://127.0.0.1:8200" -recovery-shares 1 -recovery-threshold 1 -format=json > /tmp/key.json
-
-echo "Enable Vault audit logs..."
-sudo touch /var/log/vault_audit.log
-sudo chown vault:vault /var/log/vault_audit.log
-vault audit enable file file_path=/var/log/vault_audit.log
-
-
-VAULT_TOKEN=$(cat /tmp/key.json | jq -r ".root_token")
-RECOVERY_KEYS_B64=$(cat /tmp/key.json | jq -r ".recovery_keys_b64[]")
-RECOVERY_KEYS_HEX=$(cat /tmp/key.json | jq -r ".recovery_keys_hex[]")
-# Save token temporarily to secrets manager..
-json=$(cat <<-END
-    {
-        "root_token": "$${VAULT_TOKEN}",
-        "recovery_keys_b64": "$${RECOVERY_KEYS_B64}",
-        "recovery_keys_hex": "$${RECOVERY_KEYS_HEX}"
-    }
-END
-)
-
-echo $json > /tmp/res.json
-aws --region ${tpl_aws_region} secretsmanager put-secret-value --secret-id ${tpl_secret_name} --secret-string file:///tmp/res.json
-
-export VAULT_ADDR=http://127.0.0.1:8200
-export VAULT_TOKEN=$VAULT_TOKEN
-
-echo "Waiting for Vault to finish preparations (10s)"
-sleep 10
-
-echo "Enabling kv-v2 secrets engine and inserting secret"
-vault secrets enable -path=secret kv-v2
-vault kv put secret/apikey webapp=ABB39KKPTWOR832JGNLS02
-vault kv get secret/apikey
-
-echo "Setting up user auth..."
-vault auth enable userpass
-vault auth enable okta
-%{ endif ~}
