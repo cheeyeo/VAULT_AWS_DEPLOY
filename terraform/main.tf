@@ -44,12 +44,12 @@ resource "aws_lb_target_group" "tstvault" {
 }
 
 # Create target group attachment for vault root node
-resource "aws_lb_target_group_attachment" "tstvault" {
-  count            = var.vault_nodes
-  target_group_arn = aws_lb_target_group.tstvault[0].arn
-  target_id        = aws_instance.vault_root_server[count.index].id
-  port             = 8200
-}
+# resource "aws_lb_target_group_attachment" "tstvault" {
+#   count            = var.vault_nodes
+#   target_group_arn = aws_lb_target_group.tstvault[0].arn
+#   target_id        = aws_instance.vault_root_server[count.index].id
+#   port             = 8200
+# }
 
 # Create Listener
 resource "aws_lb_listener" "ui" {

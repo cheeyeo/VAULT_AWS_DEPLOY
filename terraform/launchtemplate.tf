@@ -8,8 +8,7 @@ data "aws_ami" "default" {
 }
 
 resource "aws_launch_template" "vault_template" {
-    # name = "vault_template"
-    name_prefix = "vault_"
+    name = "vault_template"
 
     iam_instance_profile {
       name = aws_iam_instance_profile.self_hosted_runner.name

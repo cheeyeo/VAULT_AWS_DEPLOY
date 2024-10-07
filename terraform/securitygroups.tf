@@ -71,8 +71,8 @@ resource "aws_vpc_security_group_ingress_rule" "vault_elb_all_ingress" {
   count             = var.vault_nodes > 0 ? 1 : 0
   security_group_id = aws_security_group.vault_elb[0].id
   cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 0
-  to_port           = 0
+  # from_port         = 0
+  # to_port           = 0
   ip_protocol       = "-1"
 }
 
@@ -80,8 +80,8 @@ resource "aws_vpc_security_group_egress_rule" "vault_elb_all_egress" {
   count             = var.vault_nodes > 0 ? 1 : 0
   security_group_id = aws_security_group.vault_elb[0].id
   cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 0
-  to_port           = 0
+  # from_port         = 0
+  # to_port           = 0
   ip_protocol       = "-1"
 }
 
