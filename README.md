@@ -125,9 +125,10 @@ https://stackoverflow.com/a/78692375
 
 ref: https://github.com/robertdebock/terraform-aws-vault/blob/master/scripts/cloudwatch.sh
 
-* Create launch template and autoscaling group...
+* How to run command on instance once its ready from ASG?
 
-For ASG we need to turn on autocleanup of dead raft peers:
+
+* For ASG we need to turn on autocleanup of dead raft peers:
 ( run on one of the nodes in cluster )
 
 ( below needs to be converted into script to run via SSM RunCommand )
@@ -184,4 +185,14 @@ vault operator raft autopilot set-config \
 
 https://rpadovani.com/terraform-cloudinit
 
-https://aws.amazon.com/getting-started/hands-on/remotely-run-commands-ec2-instance-systems-manager/
+
+
+How to run command after instances in ASG are initialized???
+
+
+
+
+To run command via ssm:
+```
+aws ssm send-command --document-name "setup_vault" --document-version "\$LATEST" --targets '[{"Key":"InstanceIds","Values":["i-05ab8769623b23e43"]}]' --parameters '{}' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --cloud-watch-output-config '{"CloudWatchOutputEnabled":true,"CloudWatchLogGroupName":"VAULTCOMMANDS"}' --region eu-west-2
+```

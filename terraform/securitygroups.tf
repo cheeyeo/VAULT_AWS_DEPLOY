@@ -9,26 +9,26 @@ resource "aws_security_group" "vault_nodes" {
 
 resource "aws_vpc_security_group_ingress_rule" "vault_nodes_tls" {
   security_group_id = aws_security_group.vault_nodes.id
-  cidr_ipv4   = module.vpc.vpc_cidr_block
-  from_port   = 443
-  to_port     = 443
-  ip_protocol = "tcp"
+  cidr_ipv4         = module.vpc.vpc_cidr_block
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vault_nodes_api" {
   security_group_id = aws_security_group.vault_nodes.id
-  cidr_ipv4   = module.vpc.vpc_cidr_block
-  from_port   = 8200
-  to_port     = 8200
-  ip_protocol = "tcp"
+  cidr_ipv4         = module.vpc.vpc_cidr_block
+  from_port         = 8200
+  to_port           = 8200
+  ip_protocol       = "tcp"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vault_nodes_cluster" {
   security_group_id = aws_security_group.vault_nodes.id
-  cidr_ipv4   = module.vpc.vpc_cidr_block
-  from_port   = 8201
-  to_port     = 8201
-  ip_protocol = "tcp"
+  cidr_ipv4         = module.vpc.vpc_cidr_block
+  from_port         = 8201
+  to_port           = 8201
+  ip_protocol       = "tcp"
 }
 
 # internal traffic for self join of nodes?
@@ -73,7 +73,7 @@ resource "aws_vpc_security_group_ingress_rule" "vault_elb_all_ingress" {
   cidr_ipv4         = "0.0.0.0/0"
   # from_port         = 0
   # to_port           = 0
-  ip_protocol       = "-1"
+  ip_protocol = "-1"
 }
 
 resource "aws_vpc_security_group_egress_rule" "vault_elb_all_egress" {
@@ -82,7 +82,7 @@ resource "aws_vpc_security_group_egress_rule" "vault_elb_all_egress" {
   cidr_ipv4         = "0.0.0.0/0"
   # from_port         = 0
   # to_port           = 0
-  ip_protocol       = "-1"
+  ip_protocol = "-1"
 }
 
 

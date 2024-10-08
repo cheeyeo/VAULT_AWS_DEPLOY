@@ -92,6 +92,19 @@ data "aws_iam_policy_document" "additional_vault_policies" {
     effect    = "Allow"
     resources = [awscc_secretsmanager_secret.vault_root.id]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogGroups"
+    ]
+    resources = [
+      "*"
+    ]
+  }
 }
 
 resource "aws_iam_policy" "additional_vault_policy" {

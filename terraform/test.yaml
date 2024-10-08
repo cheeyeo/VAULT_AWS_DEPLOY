@@ -1,0 +1,30 @@
+schemaVersion: "2.2"
+description: "Vault setup script"
+parameters: {}
+mainSteps:
+  - action: "aws:runShellScript"
+    name: "example"
+    inputs:
+      timeoutSeconds: '600'
+      runCommand:
+        - export VAULT_ADDR=http://127.0.0.1:8200
+        - vault operator init -address="http://127.0.0.1:8200" -recovery-shares 1 -recovery-threshold 1 -format=json > /tmp/key.json
+        - export VAULT_TOKEN=$(cat /tmp/key.json | jq -r ".root_token")
+        - RECOVERY_KEYS_B64=$(cat /tmp/key.json | jq -r ".recovery_keys_b64[]")
+        - RECOVERY_KEYS_HEX=$(cat /tmp/key.json | jq -r ".recovery_keys_hex[]")
+        - aws --region ${tpl_aws_region} secretsmanager put-secret-value --secret-id ${tpl_secret_id} --secret-string "{\"root_token\":\"$${VAULT_TOKEN}\", \"recovery_keys_b64\":\"$${RECOVERY_KEYS_B64}\", \"recovery_keys_hex\":\"$${RECOVERY_KEYS_HEX}\"}"
+        - echo "Waiting for Vault to finish preparations (10s)"
+        - sleep 10
+        - echo "Enable Vault audit logs..."
+        - sudo touch /var/log/vault_audit.log
+        - sudo chown vault:vault /var/log/vault_audit.log
+        - vault audit enable file file_path=/var/log/vault_audit.log
+        - echo "Enabling kv-v2 secrets engine and inserting secret..."
+        - vault secrets enable -path=secret kv-v2
+        - vault kv put secret/apikey webapp=ABB39KKPTWOR832JGNLS02
+        - vault kv get secret/apikey
+        - echo "Setting up user auth..."
+        - vault auth enable userpass
+        - vault auth enable okta
+        - vault login $VAULT_TOKEN
+        - vault operator raft autopilot set-config -min-quorum=3 -cleanup-dead-servers=true -dead-server-last-contact-threshold=120

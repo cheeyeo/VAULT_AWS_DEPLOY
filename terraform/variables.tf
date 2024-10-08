@@ -18,11 +18,11 @@ variable "aws_region" {
 variable "vault_nodes" {
   description = "Number of vault nodes to create"
   type        = number
-  default = 0
+  default     = 0
 }
 
 variable "ami_id" {
   description = "AMI of EC2 vault instance"
-  type = string
-  default = ""
+  type        = string
+  default     = ""
 }
