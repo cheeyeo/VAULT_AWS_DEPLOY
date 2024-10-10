@@ -25,7 +25,7 @@ resource "aws_autoscaling_group" "group" {
     version = "$Latest"
   }
 
-  name_prefix = "vault-dev-"
+  name = "vault-dev"
 
   tag {
     key                 = "Name"
