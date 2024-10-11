@@ -63,10 +63,11 @@ func main() {
 				},
 			}
 
-			err := waiter.Wait(context.TODO(), param, time.Duration(300*float64(time.Second)))
+			// err := waiter.Wait(context.TODO(), param, time.Duration(300*float64(time.Second)))
+			err := waiter.Wait(ctx, param, time.Duration(300*float64(time.Second)))
 
 			if err != nil {
-				fmt.Println("In go-routine ", err)
+				fmt.Println("Error In go-routine ", err)
 				cancelFunc()
 				return
 			}
@@ -118,5 +119,6 @@ loop:
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(resp2)
+
+	fmt.Println(resp2.Command.Status)
 }

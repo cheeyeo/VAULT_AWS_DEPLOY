@@ -194,5 +194,34 @@ How to run command after instances in ASG are initialized???
 
 To run command via ssm:
 ```
-aws ssm send-command --document-name "setup_vault" --document-version "\$LATEST" --targets '[{"Key":"InstanceIds","Values":["i-05ab8769623b23e43"]}]' --parameters '{}' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --cloud-watch-output-config '{"CloudWatchOutputEnabled":true,"CloudWatchLogGroupName":"vault_setup"}' --region eu-west-2
+aws ssm send-command --document-name "setup_vault" --document-version "\$LATEST" --targets '[{"Key":"InstanceIds","Values":["i-07cad8dbb553d96cc", "i-06045a4819df6159f", "i-069a87320d3289988"]}]' --parameters '{}' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --cloud-watch-output-config '{"CloudWatchOutputEnabled":true,"CloudWatchLogGroupName":"vault_setup"}' --region eu-west-2
 ```
+
+```
+aws ssm send-command --document-name "setup_vault" --document-version "\$LATEST" --targets '[{"Key":"tag:cluster_name","Values":["vault-dev"]}]' --parameters '{}' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --cloud-watch-output-config '{"CloudWatchOutputEnabled":true,"CloudWatchLogGroupName":"vault_setup"}' --region eu-west-2
+```
+
+
+https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/aws
+
+To run command via custom go lang app:
+```
+ASG="vault-dev DOC="setup_vault" CLOUDWATCH_LOG="vault_setup" go run testscript.go
+```
+
+
+https://docs.aws.amazon.com/autoscaling/ec2/userguide/tutorial-lifecycle-hook-lambda.html
+
+### ON TLS SETUP
+
+The only example from https://github.com/robertdebock/terraform-aws-vault is to use self-signed cert with the AWS CA added to it:
+
+https://github.com/robertdebock/terraform-aws-vault/blob/master/templates/user_data_vault.sh.tpl#L82-L121
+
+
+We can't use ACM as it doesn't provide a CA cert?
+
+
+Example below of using LetsEncrypt for AWS:
+
+https://medium.com/@mariarafique/a-step-by-step-guide-to-ssl-certification-with-certbot-and-nginx-on-an-ec2-instance-2f6245f37d4f

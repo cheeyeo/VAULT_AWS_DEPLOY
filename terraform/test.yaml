@@ -8,6 +8,9 @@ mainSteps:
       timeoutSeconds: '600'
       runCommand:
         - export VAULT_ADDR=http://127.0.0.1:8200
+        - res=$(vault operator init -address="http://127.0.0.1:8200" -status)
+        - echo $res
+        - if [[ $res =~ "Vault is initialized" ]]; then exit 1; fi
         - vault operator init -address="http://127.0.0.1:8200" -recovery-shares 1 -recovery-threshold 1 -format=json > /tmp/key.json
         - export VAULT_TOKEN=$(cat /tmp/key.json | jq -r ".root_token")
         - RECOVERY_KEYS_B64=$(cat /tmp/key.json | jq -r ".recovery_keys_b64[]")
