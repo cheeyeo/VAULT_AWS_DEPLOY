@@ -214,14 +214,40 @@ https://docs.aws.amazon.com/autoscaling/ec2/userguide/tutorial-lifecycle-hook-la
 
 ### ON TLS SETUP
 
+Try to access public certificate from ACM?
+
+https://docs.aws.amazon.com/acm/latest/userguide/sdk-export.html
+
+Public certificate doesn't have the private key etc
+
+Still need another way to get the certificate...
+
+
+
 The only example from https://github.com/robertdebock/terraform-aws-vault is to use self-signed cert with the AWS CA added to it:
 
 https://github.com/robertdebock/terraform-aws-vault/blob/master/templates/user_data_vault.sh.tpl#L82-L121
 
 
-We can't use ACM as it doesn't provide a CA cert?
-
 
 Example below of using LetsEncrypt for AWS:
+
+https://medium.com/@iamjasonchild/custom-ssl-certificate-with-letsencrypt-acm-route53-powered-by-certbot-e457614df6b8
+
+
+https://hub.docker.com/r/certbot/dns-route53/tags
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 https://medium.com/@mariarafique/a-step-by-step-guide-to-ssl-certification-with-certbot-and-nginx-on-an-ec2-instance-2f6245f37d4f
