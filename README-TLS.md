@@ -3,6 +3,10 @@
 Using certbot/route53 image to generate the TLS certs:
 
 ```
+docker pull certbot/dns-route53:latest
+```
+
+```
 docker run -it --rm --name certbot \
     --env-file env-file  \
     -v "/home/chee/.aws:/root/.aws" \
@@ -11,8 +15,18 @@ docker run -it --rm --name certbot \
     certbot/dns-route53 certonly \
     -d 'teka-teka.xyz' \
     -d 'vault.teka-teka.xyz' \
+    -d '*.teka-teka.xyz' \
     -m merchantdoom@gmail.com \
     --agree-tos --server https://acme-v02.api.letsencrypt.org/directory
+```
+
+The certbot image runs as root user so the generated certs need to have permissions changed:
+```
+sudo chown -R chee:chee tls/accounts
+sudo chown -R chee:chee tls/archive
+sudo chown -R chee:chee tls/live
+sudo chown -R chee:chee tls/renewal
+sudo chown -R chee:chee tls/renewal-hooks
 ```
 
 To renew:
