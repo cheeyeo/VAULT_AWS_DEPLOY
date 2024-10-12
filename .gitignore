@@ -39,5 +39,4 @@ terraform.rc
 # Ignore plan files
 *plan
 
-env-file
 tls/
