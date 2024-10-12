@@ -30,6 +30,20 @@ func main() {
 			os.Getenv("ASG"),
 		},
 	}
+
+	customRetryable := func(ctx context.Context, params *autoscaling.DescribeAutoScalingGroupsInput, output *autoscaling.DescribeAutoScalingGroupsOutput, err error) (bool, error) {
+		if len(output.AutoScalingGroups[0].Instances) < 1 {
+			return true, nil
+		}
+
+		return false, nil
+	}
+
+	waiter := autoscaling.NewGroupInServiceWaiter(client1, func(o *autoscaling.GroupInServiceWaiterOptions) {
+		o.Retryable = customRetryable
+	})
+	waiter.Wait(context.TODO(), param, time.Duration(300*float64(time.Second)))
+
 	resp, err := client1.DescribeAutoScalingGroups(context.TODO(), param)
 	if err != nil {
 		log.Fatal(err)
@@ -74,6 +88,7 @@ func main() {
 
 			select {
 			case ch <- instance:
+				// Exits waiter loop for first instance which is ready
 				fmt.Println("In go routine: ", instance)
 				cancelFunc()
 			case <-ctx.Done():
@@ -88,7 +103,6 @@ loop:
 		case s := <-ch:
 			mainInstance = s
 			fmt.Println("In main: ", mainInstance)
-			break loop
 		case <-ctx.Done():
 			fmt.Println("Cancelled")
 			break loop
