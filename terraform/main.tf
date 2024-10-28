@@ -94,8 +94,8 @@ resource "aws_route53_record" "vault" {
   name    = "vault"
   type    = "A"
   alias {
-    name                   = aws_lb.vault.dns_name
-    zone_id                = aws_lb.vault.zone_id
+    name                   = aws_lb.vault[0].dns_name
+    zone_id                = aws_lb.vault[0].zone_id
     evaluate_target_health = false
   }
 }
