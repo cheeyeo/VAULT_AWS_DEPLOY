@@ -101,9 +101,7 @@ sudo chown -R vault:vault ${tpl_vault_storage_path}
 sudo chmod -R a+rwx ${tpl_vault_storage_path}
 
 # Place CA key and certificate.
-# test -d ${tpl_vault_storage_path}/tls || mkdir ${tpl_vault_storage_path}/tls
 sudo mkdir -pm 0755 ${tpl_vault_storage_path}/tls
-# sudo chmod -R 0755 ${tpl_vault_storage_path}/tls
 sudo chown -R vault:vault ${tpl_vault_storage_path}/tls
 sudo chmod -R a+rwx ${tpl_vault_storage_path}/tls
 
@@ -113,54 +111,51 @@ sudo aws --region ${tpl_aws_region} secretsmanager get-secret-value \
   --query 'SecretBinary' \
   --output text | base64 --decode > ${tpl_vault_storage_path}/tls/vault.pem
 
-# get the cert
-# sudo aws --region ${tpl_aws_region} secretsmanager get-secret-value \
-#   --secret-id VAULT_TLS_CERT \
-#   --query 'SecretBinary' \
-#   --output text | base64 --decode > ${tpl_vault_storage_path}/tls/vault_ca.crt
-
 sudo aws --region ${tpl_aws_region} secretsmanager get-secret-value \
   --secret-id VAULT_TLS_CHAIN \
   --query 'SecretBinary' \
-  --output text | base64 --decode > ${tpl_vault_storage_path}/tls/vault_ca.pem
+  --output text | base64 --decode > ${tpl_vault_storage_path}/tls/vault_ca.crt
 
 
-sudo chmod 0600 ${tpl_vault_storage_path}/tls/vault_ca.pem
-sudo chown root:root ${tpl_vault_storage_path}/tls/vault_ca.pem
-
-# sudo chmod 0644 ${tpl_vault_storage_path}/tls/vault_ca.crt
-# sudo chown root:root ${tpl_vault_storage_path}/tls/vault_ca.crt
+sudo chmod 0600 ${tpl_vault_storage_path}/tls/vault_ca.crt
+sudo chown vault:vault ${tpl_vault_storage_path}/tls/vault_ca.crt
 
 sudo chmod 0640 ${tpl_vault_storage_path}/tls/vault.pem
-sudo chown root:vault "${tpl_vault_storage_path}/tls/vault.pem"
+sudo chown vault:vault "${tpl_vault_storage_path}/tls/vault.pem"
 
 
 sudo tee /etc/vault.d/vault.hcl <<EOF
+api_addr = "https://vault.teka-teka.xyz:8200"
+cluster_addr = "https://$${PRIVATE_IP}:8201"
+
+disable_mlock = true
+ui=true
+
 storage "raft" {
   path    = "${tpl_vault_storage_path}"
   node_id = "$${INSTANCE_ID}"
 
   retry_join {
-    auto_join_scheme = "http"
+    auto_join_scheme = "https"
     auto_join = "provider=aws region=${tpl_aws_region} tag_key=cluster_name tag_value=vault-dev"
+    leader_tls_servername = "vault.teka-teka.xyz"
+    leader_client_cert_file = "${tpl_vault_storage_path}/tls/vault_ca.crt"
+    leader_client_key_file = "${tpl_vault_storage_path}/tls/vault.pem"
   }
 }
 
 listener "tcp" {
   address = "0.0.0.0:8200"
   cluster_address = "0.0.0.0:8201"
-  tls_disable = true
+  tls_disable = 0
+  tls_cert_file = "${tpl_vault_storage_path}/tls/vault_ca.crt"
+  tls_key_file = "${tpl_vault_storage_path}/tls/vault.pem"
 }
 
 seal "awskms" {
   region = "${tpl_aws_region}"
   kms_key_id = "${tpl_kms_id}"
 }
-
-api_addr = "http://$${PRIVATE_IP}:8200"
-cluster_addr = "http://$${PRIVATE_IP}:8201"
-disable_mlock = true
-ui=true
 EOF
 
 sudo chown -R vault:vault /etc/vault.d

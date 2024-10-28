@@ -16,9 +16,13 @@ resource "aws_autoscaling_group" "group" {
   default_cooldown     = 300
   health_check_type    = "ELB"
   termination_policies = ["OldestInstance"]
-  desired_capacity     = 3
-  max_size             = 3
-  min_size             = 1
+  # desired_capacity     = 3
+  # max_size             = 3
+  # min_size             = 1
+
+  desired_capacity = 2
+  max_size         = 2
+  min_size         = 1
 
   launch_template {
     id      = aws_launch_template.vault_template.id
@@ -57,7 +61,7 @@ resource "aws_autoscaling_group" "group" {
 }
 
 resource "terraform_data" "example" {
-  depends_on = [ aws_autoscaling_group.group, aws_ssm_document.vault, aws_cloudwatch_log_group.vault_setup_logs ]
+  depends_on = [aws_autoscaling_group.group, aws_ssm_document.vault, aws_cloudwatch_log_group.vault_setup_logs]
 
   provisioner "local-exec" {
     command = "cd ${path.cwd}/testscript && ASG=\"${aws_autoscaling_group.group[0].name}\" DOC=\"${aws_ssm_document.vault.name}\" CLOUDWATCH_LOG=\"${aws_cloudwatch_log_group.vault_setup_logs.name}\" go run testscript.go"

@@ -63,7 +63,8 @@ data "aws_iam_policy_document" "additional_vault_policies" {
   statement {
     sid = "PermitEC2ApiAccessForCloudAutoJoin"
     actions = [
-      "ec2:DescribeInstances"
+      "ec2:DescribeInstances",
+      "ec2:DescribeTags"
     ]
     effect    = "Allow"
     resources = ["*"]
@@ -91,6 +92,20 @@ data "aws_iam_policy_document" "additional_vault_policies" {
     ]
     effect    = "Allow"
     resources = [awscc_secretsmanager_secret.vault_root.id]
+  }
+
+  statement {
+    sid = "VaultTLSSecrets"
+    actions = [
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:GetSecretValue",
+    ]
+    effect = "Allow"
+    resources = [
+      "arn:aws:secretsmanager:eu-west-2:035663780217:secret:VAULT_TLS_CHAIN-IH7SrY",
+      "arn:aws:secretsmanager:eu-west-2:035663780217:secret:VAULT_TLS_CERT-cfgPgg",
+      "arn:aws:secretsmanager:eu-west-2:035663780217:secret:VAULT_TLS_PRIVKEY-jXrIEz"
+    ]
   }
 
   statement {

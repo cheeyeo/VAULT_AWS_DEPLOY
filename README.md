@@ -125,8 +125,6 @@ https://stackoverflow.com/a/78692375
 
 ref: https://github.com/robertdebock/terraform-aws-vault/blob/master/scripts/cloudwatch.sh
 
-* How to run command on instance once its ready from ASG?
-
 
 * For ASG we need to turn on autocleanup of dead raft peers:
 ( run on one of the nodes in cluster )
@@ -227,3 +225,6 @@ Still need another way to get the certificate...
 The only example from https://github.com/robertdebock/terraform-aws-vault is to use self-signed cert with the AWS CA added to it:
 
 https://github.com/robertdebock/terraform-aws-vault/blob/master/templates/user_data_vault.sh.tpl#L82-L121W
+
+
+https://dwdraju.medium.com/securing-hashicorp-vault-with-lets-encrypt-ssl-19cad1eb294

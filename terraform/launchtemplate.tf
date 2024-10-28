@@ -41,10 +41,9 @@ resource "aws_launch_template" "vault_template" {
 
   update_default_version = true
 
-  user_data = base64encode(templatefile("${path.module}/templates/userdata-vault.tpl", {
+  user_data = base64encode(templatefile("${path.module}/templates/userdata-vault2.tpl", {
     tpl_vault_storage_path = "/opt/vault/data",
     tpl_aws_region         = var.aws_region,
     tpl_kms_id             = aws_kms_key.vault_example.id
-    tpl_secret_name        = awscc_secretsmanager_secret.vault_root.secret_id
   }))
 }
