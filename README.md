@@ -125,69 +125,7 @@ https://stackoverflow.com/a/78692375
 
 ref: https://github.com/robertdebock/terraform-aws-vault/blob/master/scripts/cloudwatch.sh
 
-
-* For ASG we need to turn on autocleanup of dead raft peers:
-( run on one of the nodes in cluster )
-
-( below needs to be converted into script to run via SSM RunCommand )
-
-```
-export VAULT_ADDR=http://127.0.0.1:8200
-
-vault operator init -address="http://127.0.0.1:8200" -recovery-shares 1 -recovery-threshold 1 -format=json > /tmp/key.json
-
-VAULT_TOKEN=$(cat /tmp/key.json | jq -r ".root_token")
-RECOVERY_KEYS_B64=$(cat /tmp/key.json | jq -r ".recovery_keys_b64[]")
-RECOVERY_KEYS_HEX=$(cat /tmp/key.json | jq -r ".recovery_keys_hex[]")
-# Save token temporarily to secrets manager..
-json=$(cat <<-END
-    {
-        "root_token": "${VAULT_TOKEN}",
-        "recovery_keys_b64": "${RECOVERY_KEYS_B64}",
-        "recovery_keys_hex": "${RECOVERY_KEYS_HEX}"
-    }
-END
-)
-
-echo $json > /tmp/res.json
-aws --region ${tpl_aws_region} secretsmanager put-secret-value --secret-id ${tpl_secret_name} --secret-string file:///tmp/res.json
-
-export VAULT_ADDR=http://127.0.0.1:8200
-export VAULT_TOKEN=$VAULT_TOKEN
-
-echo "Waiting for Vault to finish preparations (10s)"
-sleep 10
-
-echo "Enable Vault audit logs..."
-sudo touch /var/log/vault_audit.log
-sudo chown vault:vault /var/log/vault_audit.log
-vault audit enable file file_path=/var/log/vault_audit.log
-
-echo "Enabling kv-v2 secrets engine and inserting secret"
-vault secrets enable -path=secret kv-v2
-vault kv put secret/apikey webapp=ABB39KKPTWOR832JGNLS02
-vault kv get secret/apikey
-
-echo "Setting up user auth..."
-vault auth enable userpass
-vault auth enable okta
-
-vault login $VAULT_TOKEN
-
-vault operator raft autopilot set-config \
-  -min-quorum=3 \
-  -cleanup-dead-servers=true \
-  -dead-server-last-contact-threshold=120
-```
-
-
 https://rpadovani.com/terraform-cloudinit
-
-
-
-How to run command after instances in ASG are initialized???
-
-
 
 
 To run command via ssm:
@@ -228,3 +166,19 @@ https://github.com/robertdebock/terraform-aws-vault/blob/master/templates/user_d
 
 
 https://dwdraju.medium.com/securing-hashicorp-vault-with-lets-encrypt-ssl-19cad1eb294
+
+
+==================================================================================================
+
+28/10/2024
+
+Managed to get TLS working with Network Load Balancer with LetsEncrypt cert
+
+Need to add both TCP:443 and TCP:8200 to the Network load balancer listeners
+The TCP must be set to 443 so it passes encrypted traffic to the LB without decrypting it first...
+
+
+TODO:
+
+* Need to create module or script for letsencrypt
+* Store the letsencrypt certs into secrets manager as binary file

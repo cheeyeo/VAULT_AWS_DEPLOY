@@ -16,13 +16,9 @@ resource "aws_autoscaling_group" "group" {
   default_cooldown     = 300
   health_check_type    = "ELB"
   termination_policies = ["OldestInstance"]
-  # desired_capacity     = 3
-  # max_size             = 3
-  # min_size             = 1
-
-  desired_capacity = 2
-  max_size         = 2
-  min_size         = 1
+  desired_capacity     = 3
+  max_size             = 3
+  min_size             = 1
 
   launch_template {
     id      = aws_launch_template.vault_template.id
