@@ -148,24 +148,6 @@ ASG="vault-dev DOC="setup_vault" CLOUDWATCH_LOG="vault_setup" go run testscript.
 
 https://docs.aws.amazon.com/autoscaling/ec2/userguide/tutorial-lifecycle-hook-lambda.html
 
-### ON TLS SETUP
-
-Try to access public certificate from ACM?
-
-https://docs.aws.amazon.com/acm/latest/userguide/sdk-export.html
-
-Public certificate doesn't have the private key etc
-
-Still need another way to get the certificate...
-
-
-
-The only example from https://github.com/robertdebock/terraform-aws-vault is to use self-signed cert with the AWS CA added to it:
-
-https://github.com/robertdebock/terraform-aws-vault/blob/master/templates/user_data_vault.sh.tpl#L82-L121W
-
-
-https://dwdraju.medium.com/securing-hashicorp-vault-with-lets-encrypt-ssl-19cad1eb294
 
 
 ==================================================================================================
@@ -180,5 +162,9 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
 
 TODO:
 
+* Create raft backup storage to S3
 * Need to create module or script for letsencrypt
-* Store the letsencrypt certs into secrets manager as binary file
+* Store the letsencrypt certs into secrets manager as binary files ( only use privkey and fullchain )
+
+* Redirect logs to cloudwatch
+* Multi-region replication

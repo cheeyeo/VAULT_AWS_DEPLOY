@@ -12,7 +12,6 @@ locals {
 }
 
 resource "aws_autoscaling_group" "group" {
-  count                = var.vault_nodes > 0 ? 1 : 0
   default_cooldown     = 300
   health_check_type    = "ELB"
   termination_policies = ["OldestInstance"]
@@ -33,7 +32,7 @@ resource "aws_autoscaling_group" "group" {
     value               = local.instance_name
   }
 
-  target_group_arns   = [aws_lb_target_group.tstvault[0].arn]
+  target_group_arns   = [aws_lb_target_group.tstvault.arn]
   vpc_zone_identifier = module.vpc.private_subnets
 
   instance_refresh {
@@ -60,6 +59,6 @@ resource "terraform_data" "example" {
   depends_on = [aws_autoscaling_group.group, aws_ssm_document.vault, aws_cloudwatch_log_group.vault_setup_logs]
 
   provisioner "local-exec" {
-    command = "cd ${path.cwd}/testscript && ASG=\"${aws_autoscaling_group.group[0].name}\" DOC=\"${aws_ssm_document.vault.name}\" CLOUDWATCH_LOG=\"${aws_cloudwatch_log_group.vault_setup_logs.name}\" go run testscript.go"
+    command = "cd ${path.cwd}/testscript && ASG=\"${aws_autoscaling_group.group.name}\" DOC=\"${aws_ssm_document.vault.name}\" CLOUDWATCH_LOG=\"${aws_cloudwatch_log_group.vault_setup_logs.name}\" go run testscript.go"
   }
 }

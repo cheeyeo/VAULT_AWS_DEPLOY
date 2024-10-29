@@ -109,10 +109,10 @@ sudo chmod -R a+rwx ${tpl_vault_storage_path}/tls
 sudo aws --region ${tpl_aws_region} secretsmanager get-secret-value \
   --secret-id VAULT_TLS_PRIVKEY \
   --query 'SecretBinary' \
-  --output text | base64 --decode > ${tpl_vault_storage_path}/tls/vault.pem
+  --output text | base64 --decode > ${tpl_vault_storage_path}/tls/vault_key.pem
 
 sudo aws --region ${tpl_aws_region} secretsmanager get-secret-value \
-  --secret-id VAULT_TLS_CHAIN \
+  --secret-id VAULT_TLS_CERT \
   --query 'SecretBinary' \
   --output text | base64 --decode > ${tpl_vault_storage_path}/tls/vault_ca.crt
 
@@ -120,8 +120,8 @@ sudo aws --region ${tpl_aws_region} secretsmanager get-secret-value \
 sudo chmod 0600 ${tpl_vault_storage_path}/tls/vault_ca.crt
 sudo chown vault:vault ${tpl_vault_storage_path}/tls/vault_ca.crt
 
-sudo chmod 0640 ${tpl_vault_storage_path}/tls/vault.pem
-sudo chown vault:vault "${tpl_vault_storage_path}/tls/vault.pem"
+sudo chmod 0640 ${tpl_vault_storage_path}/tls/vault_key.pem
+sudo chown vault:vault ${tpl_vault_storage_path}/tls/vault_key.pem
 
 
 sudo tee /etc/vault.d/vault.hcl <<EOF
@@ -140,7 +140,7 @@ storage "raft" {
     auto_join = "provider=aws region=${tpl_aws_region} tag_key=cluster_name tag_value=vault-dev"
     leader_tls_servername = "vault.teka-teka.xyz"
     leader_client_cert_file = "${tpl_vault_storage_path}/tls/vault_ca.crt"
-    leader_client_key_file = "${tpl_vault_storage_path}/tls/vault.pem"
+    leader_client_key_file = "${tpl_vault_storage_path}/tls/vault_key.pem"
   }
 }
 
@@ -149,7 +149,7 @@ listener "tcp" {
   cluster_address = "0.0.0.0:8201"
   tls_disable = 0
   tls_cert_file = "${tpl_vault_storage_path}/tls/vault_ca.crt"
-  tls_key_file = "${tpl_vault_storage_path}/tls/vault.pem"
+  tls_key_file = "${tpl_vault_storage_path}/tls/vault_key.pem"
 }
 
 seal "awskms" {

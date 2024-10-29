@@ -26,8 +26,7 @@ module "vpc" {
 
 # Create ELB target group
 resource "aws_lb_target_group" "tstvault" {
-  count = var.vault_nodes > 0 ? 1 : 0
-  name  = "tst-vault"
+  name = "tst-vault"
 
   port     = 8200
   protocol = "TCP"
@@ -46,14 +45,13 @@ resource "aws_lb_target_group" "tstvault" {
 
 # Create Listener
 resource "aws_lb_listener" "ui" {
-  count             = var.vault_nodes > 0 ? 1 : 0
-  load_balancer_arn = aws_lb.vault[0].arn
+  load_balancer_arn = aws_lb.vault.arn
   port              = "8200"
   protocol          = "TCP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.tstvault[0].arn
+    target_group_arn = aws_lb_target_group.tstvault.arn
   }
 }
 
@@ -63,26 +61,24 @@ resource "aws_lb_listener" "ui" {
 # https://vault.teka-teka.xyz
 
 resource "aws_lb_listener" "tls" {
-  count             = var.vault_nodes > 0 ? 1 : 0
-  load_balancer_arn = aws_lb.vault[0].arn
+  load_balancer_arn = aws_lb.vault.arn
   port              = "443"
   protocol          = "TCP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.tstvault[0].arn
+    target_group_arn = aws_lb_target_group.tstvault.arn
   }
 }
 
 
 # Create Load Balancer
 resource "aws_lb" "vault" {
-  count              = var.vault_nodes > 0 ? 1 : 0
   name               = "vault-elb"
   internal           = false
   load_balancer_type = "network"
   subnets            = [for subnet in module.vpc.public_subnets : subnet]
-  security_groups    = [aws_security_group.vault_elb[0].id]
+  security_groups    = [aws_security_group.vault_elb.id]
   tags = {
     Environment = "vault-dev"
   }
@@ -94,8 +90,8 @@ resource "aws_route53_record" "vault" {
   name    = "vault"
   type    = "A"
   alias {
-    name                   = aws_lb.vault[0].dns_name
-    zone_id                = aws_lb.vault[0].zone_id
+    name                   = aws_lb.vault.dns_name
+    zone_id                = aws_lb.vault.zone_id
     evaluate_target_health = false
   }
 }

@@ -39,4 +39,4 @@ terraform.rc
 # Ignore plan files
 *plan
 
-tls/
+tls*/

@@ -21,7 +21,7 @@ mainSteps:
           RECOVERY_KEYS_B64=$(cat /tmp/key.json | jq -r ".recovery_keys_b64[]")
           RECOVERY_KEYS_HEX=$(cat /tmp/key.json | jq -r ".recovery_keys_hex[]")
           
-          aws --region ${tpl_aws_region} secretsmanager put-secret-value --secret-id ${tpl_secret_id} --secret-string "{\"root_token\":\"$${VAULT_TOKEN}\", \"recovery_keys_b64\":\"$${RECOVERY_KEYS_B64}\", \"recovery_keys_hex\":\"$${RECOVERY_KEYS_HEX}\", \"admin_password\":\"${tpl_password}\"}"
+          aws --region ${tpl_aws_region} secretsmanager put-secret-value --secret-id ${tpl_secret_id} --secret-string "{\"root_token\":\"$${VAULT_TOKEN}\", \"recovery_keys_b64\":\"$${RECOVERY_KEYS_B64}\", \"recovery_keys_hex\":\"$${RECOVERY_KEYS_HEX}\", \"admin_username\":\"vault_admin\", \"admin_password\":\"${tpl_password}\"}"
           
           echo "Waiting for Vault to finish preparations (10s)"
           sleep 10
@@ -45,7 +45,7 @@ mainSteps:
           }
           EOF
 
-          vault write auth/userpass/users/admin password="${tpl_password}" policies="superuser"
+          vault write auth/userpass/users/vault_admin password="${tpl_password}" policies="superuser"
 
           vault login $VAULT_TOKEN
           vault operator raft autopilot set-config -min-quorum=3 -cleanup-dead-servers=true -dead-server-last-contact-threshold=120
