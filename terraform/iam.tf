@@ -102,7 +102,6 @@ data "aws_iam_policy_document" "additional_vault_policies" {
     ]
     effect = "Allow"
     resources = [
-      "arn:aws:secretsmanager:eu-west-2:035663780217:secret:VAULT_TLS_CHAIN-IH7SrY",
       "arn:aws:secretsmanager:eu-west-2:035663780217:secret:VAULT_TLS_CERT-cfgPgg",
       "arn:aws:secretsmanager:eu-west-2:035663780217:secret:VAULT_TLS_PRIVKEY-jXrIEz"
     ]
@@ -131,4 +130,46 @@ resource "aws_iam_policy" "additional_vault_policy" {
 resource "aws_iam_role_policy_attachment" "additional_vault_policies" {
   role       = aws_iam_role.self_hosted_runner.name
   policy_arn = aws_iam_policy.additional_vault_policy.arn
+}
+
+# Policy for S3 Bucket for automated snapshot
+data "aws_iam_policy_document" "autosnapshot" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:DeleteObject"
+    ]
+    resources = [
+      "arn:aws:s3:::${local.snapshot_bucket}/*.snap",
+      "arn:aws:s3:::${local.snapshot_bucket}/*/*.snap"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:ListBucketVersions",
+      "s3:ListBucket"
+    ]
+    resources = ["arn:aws:s3:::${local.snapshot_bucket}"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket"
+    ]
+    resources = [
+      "arn:aws:s3:::${local.snapshot_bucket}",
+      "arn:aws:s3:::${local.snapshot_bucket}/*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "autosnapshot_policy" {
+  name = "VaultAutosnapshot"
+  policy = data.aws_iam_policy_document.autosnapshot.json
+  role = aws_iam_role.self_hosted_runner.name
 }

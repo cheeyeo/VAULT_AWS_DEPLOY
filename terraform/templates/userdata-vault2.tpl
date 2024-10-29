@@ -8,7 +8,8 @@ sudo yum-config-manager --enable rhui-REGION-rhel-server-releases-optional
 sudo yum-config-manager --enable rhui-REGION-rhel-server-supplementary
 sudo yum-config-manager --enable rhui-REGION-rhel-server-extras
 sudo yum -y check-update
-sudo yum install -q -y wget unzip bind-utils ntp jq curl
+sudo yum install -q -y wget unzip bind-utils ntp jq curl cronie
+sudo systemctl start crond
 sudo systemctl start ntpd.service
 sudo systemctl enable ntpd.service
 

@@ -22,6 +22,8 @@ mainSteps:
           RECOVERY_KEYS_HEX=$(cat /tmp/key.json | jq -r ".recovery_keys_hex[]")
           
           aws --region ${tpl_aws_region} secretsmanager put-secret-value --secret-id ${tpl_secret_id} --secret-string "{\"root_token\":\"$${VAULT_TOKEN}\", \"recovery_keys_b64\":\"$${RECOVERY_KEYS_B64}\", \"recovery_keys_hex\":\"$${RECOVERY_KEYS_HEX}\", \"admin_username\":\"vault_admin\", \"admin_password\":\"${tpl_password}\"}"
+
+          rm -rf /tmp/key.json
           
           echo "Waiting for Vault to finish preparations (10s)"
           sleep 10

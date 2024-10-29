@@ -8,3 +8,8 @@ variable "aws_region" {
   type    = string
   default = "eu-west-2"
 }
+
+variable "vault_snapshot_bucket" {
+  type = string
+  default = "vault-snapshots"
+}

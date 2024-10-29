@@ -1,0 +1,24 @@
+          echo "Setting up autosnapshot..."
+          
+          sudo mkdir -pm 0755 /opt/vault/data/snapshot
+          sudo chown -R vault:vault /opt/vault/data/snapshot
+          sudo chmod -R a+rwx /opt/vault/data/snapshot
+
+          sudo tee /usr/local/bin/autosnapshot.sh <<EOF
+          #!/usr/bin/env bash
+
+          export VAULT_SKIP_VERIFY=true
+          export VAULT_ADDR=https://127.0.0.1:8200
+          
+          DATE=$$(date +%Y-%m-%d-%H-%M-%S)
+          
+          vault operator raft snapshot save /opt/vault/data/snapshot/vaultsnapshot-$DATE.snap
+          
+          aws s3 cp /opt/vault/data/snapshot/vaultsnapshot-$$DATE.snap s3://${tpl_s3_bucket}/
+          
+          echo "Completed the backup - " $$DATE
+          EOF
+
+          sudo chmod 754 /usr/local/bin/autosnapshot.sh
+
+          crontab -l | { cat; echo "* * * * * /usr/local/bin/autosnapshot.sh"; } | crontab -

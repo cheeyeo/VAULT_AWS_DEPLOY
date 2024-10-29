@@ -85,8 +85,13 @@ resource "aws_lb" "vault" {
 }
 
 # TODO: Create a DNS A record for load balancer
+data "aws_route53_zone" "default" {
+  name = "teka-teka.xyz"
+}
+
+
 resource "aws_route53_record" "vault" {
-  zone_id = "Z03864671MW1Y4SKPIIL8"
+  zone_id = data.aws_route53_zone.default.id
   name    = "vault"
   type    = "A"
   alias {
