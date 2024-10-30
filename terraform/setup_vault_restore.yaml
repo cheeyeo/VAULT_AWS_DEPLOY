@@ -1,0 +1,24 @@
+schemaVersion: "2.2"
+description: "Vault setup script"
+parameters: {}
+mainSteps:
+  - action: "aws:runShellScript"
+    name: "example"
+    inputs:
+      timeoutSeconds: '600'
+      runCommand:
+        - |
+          export VAULT_SKIP_VERIFY=true
+          export VAULT_ADDR=https://127.0.0.1:8200
+          
+          sudo mkdir -pm 0755 /opt/vault/data/snapshot
+          sudo chown -R vault:vault /opt/vault/data/snapshot
+          sudo chmod -R a+rwx /opt/vault/data/snapshot
+
+          DATE=`date +%Y-%m-%d-%H-%M-%S`
+          
+          vault operator raft snapshot save /opt/vault/data/snapshot/vaultsnapshot-$DATE.snap
+          
+          aws s3 cp /opt/vault/data/snapshot/vaultsnapshot-$DATE.snap s3://${tpl_s3_bucket}/
+          
+          echo "Completed the backup - " $DATE

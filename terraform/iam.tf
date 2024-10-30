@@ -173,3 +173,37 @@ resource "aws_iam_role_policy" "autosnapshot_policy" {
   policy = data.aws_iam_policy_document.autosnapshot.json
   role = aws_iam_role.self_hosted_runner.name
 }
+
+# IAM role for vault restore scheduler
+data "aws_iam_policy_document" "SchedulerTrustPolicy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["scheduler.amazonaws.com"]
+    }
+  }
+}
+
+# https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command-setting-up.html
+data aws_iam_policy_document "ssm_sendcommand_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:SendCommand",
+    ]
+    resources = [aws_ssm_document.vault_restore.arn]
+  }
+}
+
+resource "aws_iam_role" "scheduler" {
+  name               = "VaultRestoreScheduler"
+  assume_role_policy = data.aws_iam_policy_document.SchedulerTrustPolicy.json
+}
+
+resource "aws_iam_role_policy" "scheduler_policy" {
+  name = "VaultAutosnapshotScheduler"
+  policy = data.aws_iam_policy_document.ssm_sendcommand_policy.json
+  role = aws_iam_role.scheduler.name
+}

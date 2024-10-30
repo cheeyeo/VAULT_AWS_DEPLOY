@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/autoscaling"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	ec2_types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"github.com/aws/aws-sdk-go-v2/service/ssm/types"
 )
@@ -112,6 +113,21 @@ loop:
 
 	fmt.Println("AFTER WAITGROUP... ")
 	fmt.Println("RUNNING SSM COMMAND ON: ", mainInstance)
+
+	// Add tag to main instance to mark it as leader
+	params := &ec2.CreateTagsInput{
+		Resources: []string{mainInstance},
+		Tags: []ec2_types.Tag{
+			{
+				Key:   aws.String("ROLE"),
+				Value: aws.String("LEADER"),
+			},
+		},
+	}
+	_, err = ec2_client.CreateTags(context.TODO(), params)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	ssm_client := ssm.NewFromConfig(cfg)
 	param2 := &ssm.SendCommandInput{

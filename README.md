@@ -70,17 +70,7 @@ vault operator raft join http://10.0.1.61:8200
 
 Note that the token for login on all nodes is the same one from the leader node hence need some form of external storage such as AWS SECRETS?
 
-=============================================================================================
-
-
-Trying to replace above with retry_join..
-
-retry_join should not be run on leader node as it causes a loop !! 
-its expecting vault to be initialized...
-run it only on leader node 
-
-
-===========================================================================================
+===================================================================================
 
 How to test IAM role by assuming it in cli...
 
@@ -160,13 +150,21 @@ Need to add both TCP:443 and TCP:8200 to the Network load balancer listeners
 The TCP must be set to 443 so it passes encrypted traffic to the LB without decrypting it first...
 
 
-TODO:
+### TODO
 
-* Create raft backup storage to S3
+* Create raft backup storage to S3 ( DONE )
 
 Need to run cronjob via SSM and eventbridge?
 
 https://www.tecracer.com/blog/2023/06/replace-local-cronjobs-with-eventbridge/ssm.html
+
+
+* Restrict SSM SENDCOMMAND to only leader node
+
+https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command-setting-up.html
+
+
+* Create restore SSM command for raft storage
 
 
 * Need to create module or script for letsencrypt
@@ -174,6 +172,3 @@ https://www.tecracer.com/blog/2023/06/replace-local-cronjobs-with-eventbridge/ss
 
 * Redirect logs to cloudwatch
 * Multi-region replication
-
-
-

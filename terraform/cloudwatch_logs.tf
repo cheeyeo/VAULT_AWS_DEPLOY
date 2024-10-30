@@ -17,3 +17,13 @@ resource "aws_cloudwatch_log_group" "vault_syslog" {
     Name = "vault-dev"
   }
 }
+
+# Log group for vault restore
+resource "aws_cloudwatch_log_group" "vault_restore" {
+  name              = "vault_restore"
+  retention_in_days = 7
+
+  tags = {
+    Name = "vault-dev"
+  }
+}
