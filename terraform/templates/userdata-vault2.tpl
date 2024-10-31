@@ -70,10 +70,10 @@ AmbientCapabilities=CAP_IPC_LOCK
 Capabilities=CAP_IPC_LOCK+ep
 CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
 NoNewPrivileges=yes
-ExecStart=/usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
+ExecStart=env DBUS_SESSION_BUS_ADDRESS=/run/user/$(id -u vault)/bus /usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
 ExecReload=/bin/kill --signal HUP $$MAINPID
-KillMode=process
-KillSignal=SIGINT
+KillMode=control-group
+KillSignal=SIGTERM
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=30

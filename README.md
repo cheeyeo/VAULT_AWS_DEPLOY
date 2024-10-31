@@ -161,10 +161,17 @@ https://www.tecracer.com/blog/2023/06/replace-local-cronjobs-with-eventbridge/ss
 
 * Store the letsencrypt certs into secrets manager as binary files ( only use privkey and fullchain ) ( DONE )
 
+* Linux DBUS leftover process issue ( IN PROGRESS )
+
+  work on userdata-vault2.tpl
+
+  https://support.hashicorp.com/hc/en-us/articles/20562543907859-Vault-1-13-7-and-Linux-DBus-leftover-processes
+
+
 
 * Restrict SSM SENDCOMMAND to only leader node
 
-https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command-setting-up.html
+  https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command-setting-up.html
 
 
 * Create restore SSM command for raft storage
