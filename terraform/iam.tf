@@ -187,13 +187,14 @@ data "aws_iam_policy_document" "SchedulerTrustPolicy" {
 }
 
 # https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command-setting-up.html
+# TODO: Fix resource as its too broad
 data aws_iam_policy_document "ssm_sendcommand_policy" {
   statement {
     effect = "Allow"
     actions = [
       "ssm:SendCommand",
     ]
-    resources = [aws_ssm_document.vault_restore.arn]
+    resources = ["*"]
   }
 }
 

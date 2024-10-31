@@ -159,6 +159,9 @@ Need to run cronjob via SSM and eventbridge?
 https://www.tecracer.com/blog/2023/06/replace-local-cronjobs-with-eventbridge/ssm.html
 
 
+* Store the letsencrypt certs into secrets manager as binary files ( only use privkey and fullchain ) ( DONE )
+
+
 * Restrict SSM SENDCOMMAND to only leader node
 
 https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command-setting-up.html
@@ -166,9 +169,11 @@ https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command-setting
 
 * Create restore SSM command for raft storage
 
+* Create unique ec2 instance tag:
+  
+  https://stackoverflow.com/a/44613778
 
-* Need to create module or script for letsencrypt
-* Store the letsencrypt certs into secrets manager as binary files ( only use privkey and fullchain )
 
 * Redirect logs to cloudwatch
+
 * Multi-region replication
