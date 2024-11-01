@@ -31,7 +31,7 @@ sudo /usr/sbin/adduser \
       $${USER_NAME}  >/dev/null
 
 echo "Downloading vault..."
-VAULT_VERSION=1.17.6
+VAULT_VERSION=${tpl_vault_version}
 curl -Lo /tmp/vault.zip https://releases.hashicorp.com/vault/$${VAULT_VERSION}/vault_$${VAULT_VERSION}_linux_amd64.zip
 
 echo "Installing vault..."
@@ -55,8 +55,6 @@ Documentation=https://www.vaultproject.io/docs/
 Requires=network-online.target
 After=network-online.target
 ConditionFileNotEmpty=/etc/vault.d/vault.hcl
-StartLimitIntervalSec=60
-StartLimitBurst=3
 
 [Service]
 User=vault
@@ -70,7 +68,7 @@ AmbientCapabilities=CAP_IPC_LOCK
 Capabilities=CAP_IPC_LOCK+ep
 CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
 NoNewPrivileges=yes
-ExecStart=env DBUS_SESSION_BUS_ADDRESS=/run/user/$(id -u vault)/bus /usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
+ExecStart=/usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
 ExecReload=/bin/kill --signal HUP $$MAINPID
 KillMode=control-group
 KillSignal=SIGTERM
@@ -78,8 +76,6 @@ Restart=on-failure
 RestartSec=5
 TimeoutStopSec=30
 StartLimitInterval=60
-StartLimitIntervalSec=60
-StartLimitBurst=3
 LimitNOFILE=65536
 LimitMEMLOCK=infinity
 

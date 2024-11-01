@@ -10,6 +10,6 @@ variable "aws_region" {
 }
 
 variable "vault_snapshot_bucket" {
-  type = string
+  type    = string
   default = "vault-snapshots"
 }

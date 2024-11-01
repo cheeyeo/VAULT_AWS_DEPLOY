@@ -45,5 +45,6 @@ resource "aws_launch_template" "vault_template" {
     tpl_vault_storage_path = "/opt/vault/data",
     tpl_aws_region         = var.aws_region,
     tpl_kms_id             = aws_kms_key.vault_example.id
+    tpl_vault_version      = "1.18.1"
   }))
 }

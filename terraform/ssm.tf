@@ -12,7 +12,7 @@ resource "aws_ssm_document" "vault" {
     tpl_aws_region = var.aws_region,
     tpl_secret_id  = awscc_secretsmanager_secret.vault_root.secret_id
     tpl_password   = random_password.password.result
-    tpl_s3_bucket = local.snapshot_bucket
+    tpl_s3_bucket  = local.snapshot_bucket
   })
 }
 
@@ -33,19 +33,24 @@ data "aws_instance" "leader" {
     ROLE = "LEADER"
   }
 
-  depends_on = [ aws_route53_record.vault ]
+  filter {
+    name   = "instance-state-name"
+    values = ["running"]
+  }
+
+  depends_on = [aws_route53_record.vault]
 }
 
 resource "aws_scheduler_schedule" "vault_restore" {
-  depends_on = [ aws_route53_record.vault ]
+  depends_on = [aws_route53_record.vault]
 
-  name       = "vault_restore"
+  name = "vault_restore"
 
   flexible_time_window {
     mode = "OFF"
   }
 
-  schedule_expression = "cron(0/5 * * * ? *)"
+  schedule_expression          = "cron(0/5 * * * ? *)"
   schedule_expression_timezone = "Europe/London"
 
   target {
@@ -53,11 +58,11 @@ resource "aws_scheduler_schedule" "vault_restore" {
     role_arn = aws_iam_role.scheduler.arn
 
     input = jsonencode({
-      DocumentName = "setup_vault_restore"
+      DocumentName    = "setup_vault_restore"
       DocumentVersion = "$LATEST"
-      InstanceIds  = [data.aws_instance.leader.id]
+      InstanceIds     = [data.aws_instance.leader.id]
       CloudWatchOutputConfig = {
-        CloudWatchLogGroupName = "vault_restore"
+        CloudWatchLogGroupName  = "vault_restore"
         CloudWatchOutputEnabled = true
       }
     })

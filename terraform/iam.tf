@@ -169,9 +169,9 @@ data "aws_iam_policy_document" "autosnapshot" {
 }
 
 resource "aws_iam_role_policy" "autosnapshot_policy" {
-  name = "VaultAutosnapshot"
+  name   = "VaultAutosnapshot"
   policy = data.aws_iam_policy_document.autosnapshot.json
-  role = aws_iam_role.self_hosted_runner.name
+  role   = aws_iam_role.self_hosted_runner.name
 }
 
 # IAM role for vault restore scheduler
@@ -186,15 +186,27 @@ data "aws_iam_policy_document" "SchedulerTrustPolicy" {
   }
 }
 
-# https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command-setting-up.html
-# TODO: Fix resource as its too broad
-data aws_iam_policy_document "ssm_sendcommand_policy" {
+data "aws_iam_policy_document" "ssm_sendcommand_policy" {
   statement {
     effect = "Allow"
     actions = [
       "ssm:SendCommand",
     ]
-    resources = ["*"]
+    resources = ["arn:aws:ssm:*:*:document/*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:SendCommand",
+    ]
+    resources = ["arn:aws:ec2:*:*:instance/*"]
+
+    condition {
+      test = "StringLike"
+      variable = "ssm:resourceTag/cluster_name"
+      values = ["vault-dev"]
+    }
   }
 }
 
@@ -204,7 +216,7 @@ resource "aws_iam_role" "scheduler" {
 }
 
 resource "aws_iam_role_policy" "scheduler_policy" {
-  name = "VaultAutosnapshotScheduler"
+  name   = "VaultAutosnapshotScheduler"
   policy = data.aws_iam_policy_document.ssm_sendcommand_policy.json
-  role = aws_iam_role.scheduler.name
+  role   = aws_iam_role.scheduler.name
 }
