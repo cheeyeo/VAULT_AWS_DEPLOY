@@ -151,6 +151,17 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
 
   Requires setting up cloudwatch agent, syslog
 
+* The vault A record may not work sometimes after provisioning? Works better after creating separate hosted zone for vault subdomain ( DONE )
+
+  https://shipit.dev/posts/failing-aws-route53-records.html
+
+  ( Wait at least a minute or more before querying... )
+
+  Try to create a new hosted zone for the subdomain:
+
+  https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-routing-traffic-for-subdomains.html
+
+  https://towardsaws.com/stand-alone-subdomains-on-aws-dns-with-terraform-a488275f204b
 
 
 * Create raft backup storage to S3 ( DONE )
@@ -184,20 +195,6 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
 
 
 ### Issues
-
-* The vault A record may not work sometimes after provisioning? Need to delete and recreate the record manually
-
-  https://shipit.dev/posts/failing-aws-route53-records.html
-
-  Wait at least a minute or more before querying...
-
-
-  Try to create a new hosted zone for the subdomain:
-
-  https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-routing-traffic-for-subdomains.html
-
-  https://towardsaws.com/stand-alone-subdomains-on-aws-dns-with-terraform-a488275f204b
-
 
 * Upgrade to v18.0.1 causes SSM agent permission issue on startup:
 
