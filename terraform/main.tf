@@ -84,22 +84,36 @@ resource "aws_lb" "vault" {
   }
 }
 
-# Create a DNS A record for load balancer
-data "aws_route53_zone" "default" {
-  name = "teka-teka.xyz"
+# Create hosted zone for vault subdomain
+# Add those NS records into the main hosted zone
+data "aws_route53_zone" "main" {
+  name         = "${var.vault_domain}."
+  private_zone = false
+}
 
-  depends_on = [aws_lb.vault]
+resource "aws_route53_zone" "vault" {
+  name = "vault.${var.vault_domain}"
+
+  tags = {
+    Environment = "vault-dev"
+  }
+}
+
+resource "aws_route53_record" "vault-ns" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "vault.${var.vault_domain}"
+  type    = "NS"
+  ttl     = "30"
+  records = aws_route53_zone.vault.name_servers
 }
 
 resource "aws_route53_record" "vault" {
-  zone_id = data.aws_route53_zone.default.id
-  name    = "vault"
+  zone_id = aws_route53_zone.vault.id
+  name    = ""
   type    = "A"
   alias {
     name                   = aws_lb.vault.dns_name
     zone_id                = aws_lb.vault.zone_id
     evaluate_target_health = true
   }
-
-  depends_on = [aws_lb.vault]
 }
