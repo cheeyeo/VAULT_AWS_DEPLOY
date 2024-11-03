@@ -102,8 +102,8 @@ data "aws_iam_policy_document" "additional_vault_policies" {
     ]
     effect = "Allow"
     resources = [
-      "arn:aws:secretsmanager:eu-west-2:035663780217:secret:VAULT_TLS_CERT-cfgPgg",
-      "arn:aws:secretsmanager:eu-west-2:035663780217:secret:VAULT_TLS_PRIVKEY-jXrIEz"
+      data.aws_secretsmanager_secret.vault_tls_cert.arn,
+      data.aws_secretsmanager_secret.vault_tls_privkey.arn
     ]
   }
 
@@ -203,9 +203,9 @@ data "aws_iam_policy_document" "ssm_sendcommand_policy" {
     resources = ["arn:aws:ec2:*:*:instance/*"]
 
     condition {
-      test = "StringLike"
+      test     = "StringLike"
       variable = "ssm:resourceTag/cluster_name"
-      values = ["vault-dev"]
+      values   = ["vault-dev"]
     }
   }
 }

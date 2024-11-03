@@ -1,7 +1,7 @@
 # KMS key to use as Vault seal
 
 resource "aws_kms_key" "vault_example" {
-  description             = "An example symmetric encryption KMS key"
+  description             = "KMS key used in vault config for autoseal"
   key_usage               = "ENCRYPT_DECRYPT"
   enable_key_rotation     = true
   deletion_window_in_days = 20

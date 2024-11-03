@@ -179,9 +179,16 @@ https://www.tecracer.com/blog/2023/06/replace-local-cronjobs-with-eventbridge/ss
 
 * Create restore SSM command for raft storage
 
-* Create unique ec2 instance tag:
-  
-  https://stackoverflow.com/a/44613778
-
 
 * Multi-region replication
+
+
+### Issues
+
+Upgrade to v18.0.1 causes SSM agent permission issue on startup:
+
+```
+/var/lib/amazon/ssm/i-061d0f564e28c2fad/document/orchestration/7960290a-c665-48dd-ba26-67b0c1e28c49/example/_script.sh: line 3: /usr/local/bin/vault: Permission denied
+```
+
+Need to investigate if its an IAM role issue

@@ -1,5 +1,7 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_region" "current" {}
+
 data "aws_availability_zones" "available" {
   filter {
     name   = "opt-in-status"
@@ -55,10 +57,10 @@ resource "aws_lb_listener" "ui" {
   }
 }
 
-# TODO: Create TCP 443 listener
+# Create TCP 443 listener
 # If you must ensure that the targets decrypt TLS traffic instead of the load balancer, you can create a TCP listener on port 443 instead of creating a TLS listener. With a TCP listener, the load balancer passes encrypted traffic through to the targets without decrypting it.
+
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-listeners.html
-# https://vault.teka-teka.xyz
 
 resource "aws_lb_listener" "tls" {
   load_balancer_arn = aws_lb.vault.arn

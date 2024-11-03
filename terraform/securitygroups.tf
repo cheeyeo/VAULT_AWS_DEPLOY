@@ -68,17 +68,13 @@ resource "aws_security_group" "vault_elb" {
 resource "aws_vpc_security_group_ingress_rule" "vault_elb_all_ingress" {
   security_group_id = aws_security_group.vault_elb.id
   cidr_ipv4         = "0.0.0.0/0"
-  # from_port         = 0
-  # to_port           = 0
-  ip_protocol = "-1"
+  ip_protocol       = "-1"
 }
 
 resource "aws_vpc_security_group_egress_rule" "vault_elb_all_egress" {
   security_group_id = aws_security_group.vault_elb.id
   cidr_ipv4         = "0.0.0.0/0"
-  # from_port         = 0
-  # to_port           = 0
-  ip_protocol = "-1"
+  ip_protocol       = "-1"
 }
 
 

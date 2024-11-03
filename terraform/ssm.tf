@@ -9,7 +9,7 @@ resource "aws_ssm_document" "vault" {
   document_format = "YAML"
 
   content = templatefile("${path.module}/setup_vault.yaml", {
-    tpl_aws_region = var.aws_region,
+    tpl_aws_region = data.aws_region.current.name,
     tpl_secret_id  = awscc_secretsmanager_secret.vault_root.secret_id
     tpl_password   = random_password.password.result
     tpl_s3_bucket  = local.snapshot_bucket

@@ -23,13 +23,13 @@ set -e
 
 
 # To get file contents:
-# aws secretsmanager get-secret-value \
-#   --secret-id VAULT_TLS_PRIVKEY \
-#   --query 'SecretBinary' \
-#   --output text | base64 --decode > priv.pem
+aws secretsmanager get-secret-value \
+  --secret-id VAULT_TLS_PRIVKEY \
+  --query 'SecretBinary' \
+  --output text | base64 --decode > priv.pem
 
 
-# aws secretsmanager get-secret-value \
-#   --secret-id VAULT_TLS_CERT \
-#   --query 'SecretBinary' \
-#   --output text | base64 --decode > cert.pem
+aws secretsmanager get-secret-value \
+  --secret-id VAULT_TLS_CERT \
+  --query 'SecretBinary' \
+  --output text | base64 --decode > cert.pem
