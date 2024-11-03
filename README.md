@@ -109,15 +109,6 @@ https://stackoverflow.com/a/78692375
 
 =========================================================
 
-### Issues
-
-* Redirect vault server logs to syslog for sending to cloudwatch; also need to setup cloudwatch agent
-
-ref: https://github.com/robertdebock/terraform-aws-vault/blob/master/scripts/cloudwatch.sh
-
-https://rpadovani.com/terraform-cloudinit
-
-
 To run command via ssm:
 ```
 aws ssm send-command --document-name "setup_vault" --document-version "\$LATEST" --targets '[{"Key":"InstanceIds","Values":["i-07cad8dbb553d96cc", "i-06045a4819df6159f", "i-069a87320d3289988"]}]' --parameters '{}' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --cloud-watch-output-config '{"CloudWatchOutputEnabled":true,"CloudWatchLogGroupName":"vault_setup"}' --region eu-west-2
@@ -152,30 +143,39 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
 
 ### TODO
 
+* Redirect logs to cloudwatch
+
+  Ref: https://github.com/robertdebock/terraform-aws-vault/blob/master/scripts/cloudwatch.sh
+  
+  https://rpadovani.com/terraform-cloudinit
+
+  Requires setting up cloudwatch agent, syslog
+
+
+
 * Create raft backup storage to S3 ( DONE )
 
-Need to run cronjob via SSM and eventbridge?
+  Need to run cronjob via SSM and eventbridge?
 
-https://www.tecracer.com/blog/2023/06/replace-local-cronjobs-with-eventbridge/ssm.html
+  https://www.tecracer.com/blog/2023/06/replace-local-cronjobs-with-eventbridge/ssm.html
 
 
 * Store the letsencrypt certs into secrets manager as binary files ( only use privkey and fullchain ) ( DONE )
 
-* Linux DBUS leftover process issue ( DONE )
 
-  work on userdata-vault2.tpl
+* Linux DBUS leftover process issue ( DONE )
 
   https://github.com/hashicorp/vault/issues/22560
 
   https://support.hashicorp.com/hc/en-us/articles/20562543907859-Vault-1-13-7-and-Linux-DBus-leftover-processes
+
+  NOTE: This is fixed by upgrading to 1.18.0. Older versions will need to try some of the techniques described in the second link but may also cause the vault binary to fail to start
 
 
 * Restrict SSM SENDCOMMAND to only leader node ( DONE )
 
   https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command-setting-up.html
 
-
-* Redirect logs to cloudwatch
 
 * Create restore SSM command for raft storage
 
@@ -185,10 +185,18 @@ https://www.tecracer.com/blog/2023/06/replace-local-cronjobs-with-eventbridge/ss
 
 ### Issues
 
-Upgrade to v18.0.1 causes SSM agent permission issue on startup:
+* The vault A record may not work sometimes after provisioning? Need to delete and recreate the record manually
 
-```
-/var/lib/amazon/ssm/i-061d0f564e28c2fad/document/orchestration/7960290a-c665-48dd-ba26-67b0c1e28c49/example/_script.sh: line 3: /usr/local/bin/vault: Permission denied
-```
+* Upgrade to v18.0.1 causes SSM agent permission issue on startup:
 
-Need to investigate if its an IAM role issue
+  ```
+  /var/lib/amazon/ssm/i-061d0f564e28c2fad/document/orchestration/7960290a-c665-48dd-ba26-67b0c1e28c49/example/_script.sh: line 3: /usr/local/bin/vault: Permission denied
+  ```
+
+  Need to investigate if its an IAM role issue
+
+
+* Errors when node gets deleted and raft tries to rejoin new active node...
+```
+storage.raft: failed to appendEntries to: peer="{Nonvoter i-067e9ef74bd028926 10.0.1.136:8201}" error="dial tcp 10.0.1.136:8201: connect: connection refused"
+```

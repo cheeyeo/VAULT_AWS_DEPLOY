@@ -96,7 +96,18 @@ sudo mkdir -pm 0755 ${tpl_vault_storage_path}
 sudo chown -R vault:vault ${tpl_vault_storage_path}
 sudo chmod -R a+rwx ${tpl_vault_storage_path}
 
+# Audit logs
+echo "Enable Vault audit logs..."
+sudo mkdir -pm 0755 ${tpl_vault_storage_path}/logs
+sudo chown -R vault:vault ${tpl_vault_storage_path}/logs
+sudo chmod -R a+rwx ${tpl_vault_storage_path}/logs
+
+sudo touch ${tpl_vault_storage_path}/logs/vault_audit.log
+sudo chown vault:vault ${tpl_vault_storage_path}/logs/vault_audit.log
+vault audit enable file file_path=${tpl_vault_storage_path}/logs/vault_audit.log
+
 # Place CA key and certificate.
+echo "Enable TLS certificates..."
 sudo mkdir -pm 0755 ${tpl_vault_storage_path}/tls
 sudo chown -R vault:vault ${tpl_vault_storage_path}/tls
 sudo chmod -R a+rwx ${tpl_vault_storage_path}/tls

@@ -28,11 +28,6 @@ mainSteps:
           echo "Waiting for Vault to finish preparations (10s)"
           sleep 10
           
-          echo "Enable Vault audit logs..."
-          sudo touch /var/log/vault_audit.log
-          sudo chown vault:vault /var/log/vault_audit.log
-          vault audit enable file file_path=/var/log/vault_audit.log
-          
           echo "Enabling kv-v2 secrets engine and inserting secret..."
           vault secrets enable -path=secret kv-v2
           vault kv put secret/apikey webapp=ABB39KKPTWOR832JGNLS02
