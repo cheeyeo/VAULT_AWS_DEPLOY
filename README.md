@@ -196,6 +196,8 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
 
   https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-routing-traffic-for-subdomains.html
 
+  https://towardsaws.com/stand-alone-subdomains-on-aws-dns-with-terraform-a488275f204b
+
 
 * Upgrade to v18.0.1 causes SSM agent permission issue on startup:
 

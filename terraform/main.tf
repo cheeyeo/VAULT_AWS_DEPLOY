@@ -86,7 +86,7 @@ resource "aws_lb" "vault" {
 
 # Create a DNS A record for load balancer
 data "aws_route53_zone" "default" {
-  name = "teka-teka.xyz"
+  name = var.vault_domain
 
   depends_on = [aws_lb.vault]
 }
