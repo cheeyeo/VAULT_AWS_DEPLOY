@@ -141,7 +141,7 @@ Need to add both TCP:443 and TCP:8200 to the Network load balancer listeners
 The TCP must be set to 443 so it passes encrypted traffic to the LB without decrypting it first...
 
 
-### TODO
+### Resolved Issues
 
 * Redirect logs to cloudwatch
 
@@ -188,15 +188,18 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
   https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command-setting-up.html
 
 
+### TODO
+
 * Create restore SSM command for raft storage
 
+* Try upgrade to latest Vault version
 
 * Multi-region replication
 
 
 ### Issues
 
-* Upgrade to v18.0.1 causes SSM agent permission issue on startup:
+* Upgrade to v1.18.1 causes SSM agent permission issue on startup:
 
   ```
   /var/lib/amazon/ssm/i-061d0f564e28c2fad/document/orchestration/7960290a-c665-48dd-ba26-67b0c1e28c49/example/_script.sh: line 3: /usr/local/bin/vault: Permission denied
