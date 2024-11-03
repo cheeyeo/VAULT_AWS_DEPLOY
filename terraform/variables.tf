@@ -13,3 +13,7 @@ variable "vault_snapshot_bucket" {
   type    = string
   default = "vault-snapshots"
 }
+
+variable "vault_domain" {
+  type = string
+}

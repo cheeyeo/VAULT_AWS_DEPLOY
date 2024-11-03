@@ -187,6 +187,16 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
 
 * The vault A record may not work sometimes after provisioning? Need to delete and recreate the record manually
 
+  https://shipit.dev/posts/failing-aws-route53-records.html
+
+  Wait at least a minute or more before querying...
+
+
+  Try to create a new hosted zone for the subdomain:
+
+  https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-routing-traffic-for-subdomains.html
+
+
 * Upgrade to v18.0.1 causes SSM agent permission issue on startup:
 
   ```
@@ -200,3 +210,5 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
 ```
 storage.raft: failed to appendEntries to: peer="{Nonvoter i-067e9ef74bd028926 10.0.1.136:8201}" error="dial tcp 10.0.1.136:8201: connect: connection refused"
 ```
+
+https://sysadmin.info.pl/en/blog/secure-secrets-management-using-hashicorp-vault-with-gitlab-ci-cd/

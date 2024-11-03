@@ -38,5 +38,6 @@ terraform.rc
 
 # Ignore plan files
 *plan
+tfvars
 
 tls*/

@@ -132,7 +132,7 @@ sudo chown vault:vault ${tpl_vault_storage_path}/tls/vault_key.pem
 
 
 sudo tee /etc/vault.d/vault.hcl <<EOF
-api_addr = "https://vault.teka-teka.xyz:8200"
+api_addr = "https://vault.${tpl_domain}:8200"
 cluster_addr = "https://$${PRIVATE_IP}:8201"
 
 disable_mlock = true
@@ -145,7 +145,7 @@ storage "raft" {
   retry_join {
     auto_join_scheme = "https"
     auto_join = "provider=aws region=${tpl_aws_region} tag_key=cluster_name tag_value=vault-dev"
-    leader_tls_servername = "vault.teka-teka.xyz"
+    leader_tls_servername = "vault.${tpl_domain}"
     leader_client_cert_file = "${tpl_vault_storage_path}/tls/vault_ca.crt"
     leader_client_key_file = "${tpl_vault_storage_path}/tls/vault_key.pem"
   }

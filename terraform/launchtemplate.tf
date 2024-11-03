@@ -42,8 +42,9 @@ resource "aws_launch_template" "vault_template" {
 
   user_data = base64encode(templatefile("${path.module}/templates/userdata-vault2.tpl", {
     tpl_vault_storage_path = "/opt/vault/data",
-    tpl_aws_region         = data.aws_region.current.name,
+    tpl_aws_region         = var.aws_region,
     tpl_kms_id             = aws_kms_key.vault_example.id
     tpl_vault_version      = "1.18.0"
+    tpl_domain             = var.vault_domain
   }))
 }

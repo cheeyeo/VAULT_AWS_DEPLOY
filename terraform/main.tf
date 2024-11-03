@@ -1,7 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_region" "current" {}
-
 data "aws_availability_zones" "available" {
   filter {
     name   = "opt-in-status"
@@ -86,11 +84,12 @@ resource "aws_lb" "vault" {
   }
 }
 
-# TODO: Create a DNS A record for load balancer
+# Create a DNS A record for load balancer
 data "aws_route53_zone" "default" {
   name = "teka-teka.xyz"
-}
 
+  depends_on = [aws_lb.vault]
+}
 
 resource "aws_route53_record" "vault" {
   zone_id = data.aws_route53_zone.default.id
@@ -101,4 +100,6 @@ resource "aws_route53_record" "vault" {
     zone_id                = aws_lb.vault.zone_id
     evaluate_target_health = true
   }
+
+  depends_on = [aws_lb.vault]
 }
