@@ -8,6 +8,7 @@ mainSteps:
       timeoutSeconds: '600'
       runCommand:
         - |
+          sleep 30
           export VAULT_SKIP_VERIFY=true
           export VAULT_ADDR=https://127.0.0.1:8200
           res=$(vault operator init -address="https://127.0.0.1:8200" -status)

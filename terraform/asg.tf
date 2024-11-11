@@ -59,6 +59,8 @@ resource "terraform_data" "example" {
   depends_on = [aws_autoscaling_group.group, aws_ssm_document.vault, aws_cloudwatch_log_group.vault_setup_logs]
 
   provisioner "local-exec" {
-    command = "cd ${path.cwd}/testscript && ASG=\"${aws_autoscaling_group.group.name}\" DOC=\"${aws_ssm_document.vault.name}\" CLOUDWATCH_LOG=\"${aws_cloudwatch_log_group.vault_setup_logs.name}\" go run testscript.go"
+    interpreter = ["/bin/bash", "-c"]
+
+    command = "cd '${path.cwd}/testscript' && ls -al && ASG=\"${aws_autoscaling_group.group.name}\" DOC=\"${aws_ssm_document.vault.name}\" CLOUDWATCH_LOG=\"${aws_cloudwatch_log_group.vault_setup_logs.name}\" go run testscript.go"
   }
 }

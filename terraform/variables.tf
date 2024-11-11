@@ -16,4 +16,11 @@ variable "vault_snapshot_bucket" {
 
 variable "vault_domain" {
   type = string
+  description = "Domain name for vault cluster. Set in network load balancer."
+}
+
+variable "vault_version" {
+  type = string
+  default = "1.18.0"
+  description = "Version of vault to install"
 }

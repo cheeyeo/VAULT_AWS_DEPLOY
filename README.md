@@ -143,14 +143,6 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
 
 ### Resolved Issues
 
-* Redirect logs to cloudwatch
-
-  Ref: https://github.com/robertdebock/terraform-aws-vault/blob/master/scripts/cloudwatch.sh
-  
-  https://rpadovani.com/terraform-cloudinit
-
-  Requires setting up cloudwatch agent, syslog
-
 * The vault A record may not work sometimes after provisioning? Works better after creating separate hosted zone for vault subdomain ( DONE )
 
   https://shipit.dev/posts/failing-aws-route53-records.html
@@ -190,9 +182,17 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
 
 ### TODO
 
-* Create restore SSM command for raft storage
+* Move vault restore bucket out of terraform and provide a bucket name instead as a variable ( to fix issue with the bucket not getting created )
 
-* Try upgrade to latest Vault version
+* Redirect logs to cloudwatch
+
+  Ref: https://github.com/robertdebock/terraform-aws-vault/blob/master/scripts/cloudwatch.sh
+  
+  https://rpadovani.com/terraform-cloudinit
+
+  Requires setting up cloudwatch agent, syslog
+
+* Create restore SSM command for raft storage
 
 * Multi-region replication
 
@@ -205,7 +205,7 @@ The TCP must be set to 443 so it passes encrypted traffic to the LB without decr
   /var/lib/amazon/ssm/i-061d0f564e28c2fad/document/orchestration/7960290a-c665-48dd-ba26-67b0c1e28c49/example/_script.sh: line 3: /usr/local/bin/vault: Permission denied
   ```
 
-  Need to investigate if its an IAM role issue
+  Test with additional sleep in setup_vault.yml before running script or try with retry loop?
 
 
 * Errors when node gets deleted and raft tries to rejoin new active node...

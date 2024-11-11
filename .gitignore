@@ -40,4 +40,8 @@ terraform.rc
 *plan
 tfvars
 
+# Ignore TLS cert folder
 tls*/
+
+# Ignore misc files
+env-file
