@@ -7,7 +7,7 @@ resource "aws_kms_key" "vault_example" {
   deletion_window_in_days = 20
   policy = jsonencode({
     Version = "2012-10-17"
-    Id      = "key-default-1"
+    Id      = "vault-auto-unseal"
     Statement = [
       {
         Sid    = "Enable IAM User Permissions"
@@ -22,7 +22,7 @@ resource "aws_kms_key" "vault_example" {
         Sid    = "Allow administration of the key"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/devs"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${data.aws_caller_identity.current.name}"
         },
         Action = [
           "kms:ReplicateKey",
@@ -45,7 +45,7 @@ resource "aws_kms_key" "vault_example" {
         Sid    = "Allow use of the key"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/devs"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${data.aws_caller_identity.current.name}"
         },
         Action = [
           "kms:DescribeKey",
