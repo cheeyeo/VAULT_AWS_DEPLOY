@@ -1,5 +1,9 @@
 # KMS key to use as Vault seal
 
+locals {
+  user_profile = split("/", data.aws_caller_identity.current.arn)[1]
+}
+
 resource "aws_kms_key" "vault_example" {
   description             = "KMS key used in vault config for autoseal"
   key_usage               = "ENCRYPT_DECRYPT"
@@ -22,7 +26,7 @@ resource "aws_kms_key" "vault_example" {
         Sid    = "Allow administration of the key"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${data.aws_caller_identity.current.name}"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${local.user_profile}"
         },
         Action = [
           "kms:ReplicateKey",
@@ -45,7 +49,7 @@ resource "aws_kms_key" "vault_example" {
         Sid    = "Allow use of the key"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${data.aws_caller_identity.current.name}"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${local.user_profile}"
         },
         Action = [
           "kms:DescribeKey",
