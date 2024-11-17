@@ -61,6 +61,6 @@ resource "terraform_data" "example" {
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
 
-    command = "cd '${path.cwd}/testscript' && ls -al && ASG=\"${aws_autoscaling_group.group.name}\" DOC=\"${aws_ssm_document.vault.name}\" CLOUDWATCH_LOG=\"${aws_cloudwatch_log_group.vault_setup_logs.name}\" go run testscript.go"
+    command = "cd '${path.cwd}/asg_leader' && make build && ls -al && ASG=\"${aws_autoscaling_group.group.name}\" DOC=\"${aws_ssm_document.vault.name}\" CLOUDWATCH_LOG=\"${aws_cloudwatch_log_group.vault_setup_logs.name}\" ./asg_leader"
   }
 }

@@ -99,7 +99,7 @@ The logs are currently not streamed to Cloudwatch Logs yet so need to use journa
 sudo journalctl -b --no-pager -u vault
 ```
 
-The `testscript` folder contains a go-lang script which is run after the ASG is created in order to select the first ready EC2 instance in the cluster as the leader and runs the initial vault cluster setup SSM document on it. The script is defined in `setup_vault.yml`
+The `asg_leader` folder contains a go-lang application which is run after the ASG is created in order to select the first ready EC2 instance in the cluster as the leader and runs the initial vault cluster setup SSM document on it. The script is defined in `setup_vault.yml`
 
 
 To run command via custom go lang app:

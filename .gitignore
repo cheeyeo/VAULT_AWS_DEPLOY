@@ -45,3 +45,4 @@ tls*/
 
 # Ignore misc files
 env-file
+READ-TLS.md
