@@ -40,7 +40,9 @@ https://www.taccoform.com/posts/pkr_p1/
 
 ### Run with terraform
 
-Login to your aws profile / account first
+This creates a 3 node vault cluster backed by an autoscaling group, running in a private vpc behind a public network load balancer.
+
+Login to your aws profile / account first:
 ```
 export AWS_PROFILE=xxx
 export AWS_REGION=xxx
@@ -123,11 +125,11 @@ ASG="vault-dev DOC="setup_vault" CLOUDWATCH_LOG="vault_setup" go run testscript.
     ```
 
   * For each child node, run the join command:
-  ```
-  export VAULT_ADDR=http://127.0.0.1:8200
+    ```
+    export VAULT_ADDR=http://127.0.0.1:8200
 
-  vault operator raft join http://10.0.1.61:8200
-  ```
+    vault operator raft join http://10.0.1.61:8200
+    ```
 
   https://developer.hashicorp.com/vault/docs/commands/operator/raft#join
 
